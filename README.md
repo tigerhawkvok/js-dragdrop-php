@@ -14,6 +14,7 @@ The following optional paramaters may be specified:
 - `dropperParams.thumbHeight`: Maximum thumbnail height, in pixels. Default 480.
 - `dropperParams.dependencyPath`: The path to the dependencies of the library. Defaults to `bower_components/`.
 - `dropperParams.showProgress`: Show an extra progress bar beneath the drop target. Default `false`.
+- `dropperParams.clickTargets`: Targets that can be clicked to initiate an upload. An array of CSS selectors. (Default: none)
 
 ## License
 

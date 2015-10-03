@@ -2,7 +2,7 @@
 # Test initialization and callback
 ###
 
-dropTargetSelector = "#drop-target"
+dropTargetSelector = "#new-message"
 
 postUploadCallback = (file, result) ->
   if typeof result isnt "object"
@@ -36,6 +36,8 @@ postUploadCallback = (file, result) ->
   false
 
 $ ->
+  # Configuration
   window.dropperParams.metaPath = "http://velociraptorsystems.com/samples/js-dragdrop-upload/"
   window.dropperParams.showProgress = true
+  window.dropperParams.clickTargets = ["#do-upload-image"]
   window.dropperParams.handleDragDropImage dropTargetSelector, postUploadCallback

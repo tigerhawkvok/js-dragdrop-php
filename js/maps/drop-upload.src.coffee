@@ -556,6 +556,7 @@ dropperParams.md5Path = "#{dropperParams.dependencyPath}JavaScript-MD5/js/md5.mi
 dropperParams.thumbWidth ?= 640
 dropperParams.thumbHeight ?= 480
 dropperParams.showProgress ?= false
+dropperParams.clickTargets ?= false
 
 
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
@@ -613,6 +614,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       autoProcessQueue: true
       maxFiles: 1
       dictDefaultMessage: defaultText
+      clickable: dropperParams.clickTargets
       init: ->
         # See http://www.dropzonejs.com/#events
         @on "error", (file, errorMessage) ->
@@ -636,23 +638,24 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
           dragCancel()
         @on "drop", ->
           dragCancel()
-          if dropperParams.showProgress is true
-            # Show a bootstrap progress bar
-            # http://getbootstrap.com/components/#progress
-            html = """
-            <div class="image-upload-progress">
-              <div class="progress">
-                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em;">
-                  <span class="upload-percent">0</span>%<span class="sr-only"> Complete</span>
-                </div>
-              </div>
-              <p class="text-center text-muted"><span class="bytes-done">0</span>/<span class="bytes-total">0</span> bytes</p>
-            </div>
-            """
-            d$(uploadTargetSelector).after(html)
         @on "uploadprogress", (file, progress, bytes) ->
-          progressBar = d$("#{uploadTargetSelector} + .image-upload-progress")          
-          if progressBar.exists()
+          if dropperParams.showProgress is true
+            progressBar = d$("#{uploadTargetSelector} + .image-upload-progress")
+            unless progressBar.exists()
+              # Show a bootstrap progress bar
+              # http://getbootstrap.com/components/#progress
+              html = """
+              <div class="image-upload-progress">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em;">
+                    <span class="upload-percent">0</span>%<span class="sr-only"> Complete</span>
+                  </div>
+                </div>
+                <p class="text-center text-muted"><span class="bytes-done">0</span>/<span class="bytes-total">0</span> bytes</p>
+              </div>
+              """
+              d$(uploadTargetSelector).after(html)
+              progressBar = d$("#{uploadTargetSelector} + .image-upload-progress")
             progress = toInt(progress)
             # Handle the upload
             progressBar.find(".progress-bar")

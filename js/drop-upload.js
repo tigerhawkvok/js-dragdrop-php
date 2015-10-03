@@ -784,6 +784,10 @@ if (dropperParams.showProgress == null) {
   dropperParams.showProgress = false;
 }
 
+if (dropperParams.clickTargets == null) {
+  dropperParams.clickTargets = false;
+}
+
 handleDragDropImage = function(uploadTargetSelector, callback) {
   if (uploadTargetSelector == null) {
     uploadTargetSelector = "#upload-image";
@@ -845,6 +849,7 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
       autoProcessQueue: true,
       maxFiles: 1,
       dictDefaultMessage: defaultText,
+      clickable: dropperParams.clickTargets,
       init: function() {
         this.on("error", function(file, errorMessage) {
           return toastStatusMessage("An error occured sending your image to the server - " + errorMessage + ".", "danger");
@@ -870,17 +875,17 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
           return dragCancel();
         });
         this.on("drop", function() {
-          var html;
-          dragCancel();
-          if (dropperParams.showProgress === true) {
-            html = "<div class=\"image-upload-progress\">\n  <div class=\"progress\">\n    <div class=\"progress-bar progress-bar-striped active\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"min-width:2em;\">\n      <span class=\"upload-percent\">0</span>%<span class=\"sr-only\"> Complete</span>\n    </div>\n  </div>\n  <p class=\"text-center text-muted\"><span class=\"bytes-done\">0</span>/<span class=\"bytes-total\">0</span> bytes</p>\n</div>";
-            return d$(uploadTargetSelector).after(html);
-          }
+          return dragCancel();
         });
         this.on("uploadprogress", function(file, progress, bytes) {
-          var progressBar;
-          progressBar = d$(uploadTargetSelector + " + .image-upload-progress");
-          if (progressBar.exists()) {
+          var html, progressBar;
+          if (dropperParams.showProgress === true) {
+            progressBar = d$(uploadTargetSelector + " + .image-upload-progress");
+            if (!progressBar.exists()) {
+              html = "<div class=\"image-upload-progress\">\n  <div class=\"progress\">\n    <div class=\"progress-bar progress-bar-striped active\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"min-width:2em;\">\n      <span class=\"upload-percent\">0</span>%<span class=\"sr-only\"> Complete</span>\n    </div>\n  </div>\n  <p class=\"text-center text-muted\"><span class=\"bytes-done\">0</span>/<span class=\"bytes-total\">0</span> bytes</p>\n</div>";
+              d$(uploadTargetSelector).after(html);
+              progressBar = d$(uploadTargetSelector + " + .image-upload-progress");
+            }
             progress = toInt(progress);
             progressBar.find(".progress-bar").attr("aria-valuenow", progress).css("width", progress + "%");
             progressBar.find(".upload-percent").text(progress);
