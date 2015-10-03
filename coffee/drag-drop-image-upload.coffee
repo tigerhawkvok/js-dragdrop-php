@@ -2,10 +2,13 @@ unless window.dropperParams?
   window.dropperParams = new Object()
 # Path to where meta.php lives. This is the file that handles the
 # server-side upload.
-dropperParams.metaPath = ""
-dropperParams.uploadPath = "uploaded_images/"
-dropperParams.dropzonePath = "bower_components/dropzone/dist/min/dropzone.min.js"
-dropperParams.md5Path = "bower_components/JavaScript-MD5/js/md5.min.js"
+dropperParams.metaPath ?= ""
+dropperParams.uploadPath ?= "uploaded_images/"
+dropperParams.dropzonePath ?= "bower_components/dropzone/dist/min/dropzone.min.js"
+dropperParams.md5Path ?= "bower_components/JavaScript-MD5/js/md5.min.js"
+dropperParams.thumbWidth ?= 640
+dropperParams.thumbHeight ?= 480
+
 
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
   ###
@@ -57,7 +60,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       .css("border","")
       d$("#{uploadTargetSelector} .dz-message span").text(defaultText)
     dropzoneConfig =
-      url: "#{dropperParams.metaPath}meta.php?do=upload_image&uploadpath=#{dropperParams.uploadPath}"
+      url: "#{dropperParams.metaPath}meta.php?do=upload_image&uploadpath=#{dropperParams.uploadPath}&thumb_width=#{dropperParams.thumbWidth}&thumb_height=#{dropperParams.thumb_height}"
       acceptedFiles: "image/*"
       autoProcessQueue: true
       maxFiles: 1

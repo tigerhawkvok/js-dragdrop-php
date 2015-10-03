@@ -10,6 +10,9 @@ There plugin exposes the global variable `dropperParams`, which has two primary 
 The following optional paramaters may be specified:
 
 - `dropperParams.uploadText`: The text to show in the upload target. Defaults to "Drop your image here".
+- `dropperParams.thumbWidth`: Maximum thumbnail width, in pixels. Default 640.
+- `dropperParams.thumbHeight`: Maximum thumbnail height, in pixels. Default 480.
+
 
 
 ## License

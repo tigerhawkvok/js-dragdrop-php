@@ -756,13 +756,29 @@ if (window.dropperParams == null) {
   window.dropperParams = new Object();
 }
 
-dropperParams.metaPath = "";
+if (dropperParams.metaPath == null) {
+  dropperParams.metaPath = "";
+}
 
-dropperParams.uploadPath = "uploaded_images/";
+if (dropperParams.uploadPath == null) {
+  dropperParams.uploadPath = "uploaded_images/";
+}
 
-dropperParams.dropzonePath = "bower_components/dropzone/dist/min/dropzone.min.js";
+if (dropperParams.dropzonePath == null) {
+  dropperParams.dropzonePath = "bower_components/dropzone/dist/min/dropzone.min.js";
+}
 
-dropperParams.md5Path = "bower_components/JavaScript-MD5/js/md5.min.js";
+if (dropperParams.md5Path == null) {
+  dropperParams.md5Path = "bower_components/JavaScript-MD5/js/md5.min.js";
+}
+
+if (dropperParams.thumbWidth == null) {
+  dropperParams.thumbWidth = 640;
+}
+
+if (dropperParams.thumbHeight == null) {
+  dropperParams.thumbHeight = 480;
+}
 
 handleDragDropImage = function(uploadTargetSelector, callback) {
   if (uploadTargetSelector == null) {
@@ -820,7 +836,7 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
       return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
     };
     dropzoneConfig = {
-      url: dropperParams.metaPath + "meta.php?do=upload_image&uploadpath=" + dropperParams.uploadPath,
+      url: dropperParams.metaPath + "meta.php?do=upload_image&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumb_height,
       acceptedFiles: "image/*",
       autoProcessQueue: true,
       maxFiles: 1,
