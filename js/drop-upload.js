@@ -795,7 +795,6 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
         ext = fileName.split(".").pop();
         fullFile = (md5(fileName)) + "." + ext;
         fullPath = "" + dropperParams.uploadPath + fullFile;
-        d$("#edit-image").attr("disabled", "disabled").attr("value", fullPath);
         toastStatusMessage("Upload complete", "success");
       } catch (_error) {
         e = _error;
@@ -868,5 +867,7 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
 };
 
 dropperParams.handleDragDropImage = handleDragDropImage;
+
+window.toastStatusMessage = toastStatusMessage;
 
 //# sourceMappingURL=maps/drop-upload.js.map

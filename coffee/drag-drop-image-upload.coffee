@@ -29,7 +29,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
         return false
       try
         fileName = file.name
-        # Disable the selector
+        # Disable the selector -- only allow one image to be uploaded here
         dropperParams.dropzone.disable()
         # Now, process the rename and insert it into the file area
         # Get the MD5 of the original filename
@@ -37,10 +37,6 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
         # MD5.extension is the goal
         fullFile = "#{md5(fileName)}.#{ext}"
         fullPath = "#{dropperParams.uploadPath}#{fullFile}"
-        # Insert it into the field
-        d$("#edit-image")
-        .attr("disabled","disabled")
-        .attr("value",fullPath)
         toastStatusMessage("Upload complete", "success")
       catch e
         console.error("There was a problem with upload post-processing - #{e.message}")
@@ -104,5 +100,6 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
     dropperParams.dropzone = fileUploadDropzone
   false
 
-
+# Export
 dropperParams.handleDragDropImage = handleDragDropImage
+window.toastStatusMessage = toastStatusMessage

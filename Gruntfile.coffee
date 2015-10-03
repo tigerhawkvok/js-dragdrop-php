@@ -17,7 +17,9 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-string-replace')
   grunt.loadNpmTasks('grunt-postcss')
   grunt.loadNpmTasks('grunt-contrib-less')
-
+  grunt.loadNpmTasks('grunt-php-cs-fixer')
+  # https://www.npmjs.com/package/grunt-phplint
+  grunt.loadNpmTasks("grunt-phplint");
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
     shell:
@@ -88,6 +90,16 @@ module.exports = (grunt) ->
           sourceMap: true
         files:
           "js/drop-upload.js":"coffee/*.coffee"
+    phpcsfixer:
+      scripts:
+        dir: ["./"]
+      options:
+        ignoreExitCode: true
+        verbose: true
+        diff: false
+        dryRun: false
+    phplint:
+      root: ["*.php"]
     watch:
       scripts:
         files: ["coffee/*.coffee"]
@@ -98,6 +110,9 @@ module.exports = (grunt) ->
       html:
         files: ["index.html"]
         tasks: ["bootlint","htmllint"]
+      php:
+        files: ["*.php"]
+        tasks: ["phplint"]
     bootlint:
       options:
         stoponerror: false

@@ -65,13 +65,33 @@ function doUploadImage() {
     }
     $file = $_FILES["file"]["name"];
     $extension = array_pop(explode(".",$file));
-    $newFilePath = md5($file) . "." . $extension;
+    $fileName = md5($file.microtime_float());
+    $newFilePath = $fileName . "." . $extension;
     $fileWritePath = $savePath . $newFilePath;
     # We want to suppress the warning on move_uploaded_file, or else
     # it'll return an invalid JSON response
     error_reporting(0); # Disable this for debugging
-    return array("status"=>move_uploaded_file($temp,$fileWritePath),"original_file"=>$file,"wrote_file"=>$newFilePath,"full_path"=>$fileWritePath);
-
+    $status = move_uploaded_file($temp,$fileWritePath);
+    $uploadStatus = array("status"=>$status,"original_file"=>$file,"wrote_file"=>$newFilePath,"full_path"=>$fileWritePath);
+    if(!$status) {
+        # We bugged out on completing the upload. Return this status.
+        return $uploadStatus;
+    }
+    # OK, create the thumbs.
+    if(intval($_REQUEST["thumb_width"]) > 0) {
+        $thumb_max_width = intval($_REQUEST["thumb_width"]);
+    } else {
+        $thumb_max_width = 640;
+    }
+    if(intval($_REQUEST["thumb_height"]) > 0) {
+        $thumb_max_height = intval($_REQUEST["thumb_height"]);
+    } else {
+        $thumb_max_height = 480;
+    }
+    $fileThumb = $savePath . $fileName . "-thumb." . $extension;
+    $resizeStatus = ImageFunctions::staticResizeImage($fileWritePath, $fileThumb, $thumb_max_width, $thumb_max_height);
+    $uploadStatus["resize_status"] = $resizeStatus;
+    return $uploadStatus;   
 }
 
 
