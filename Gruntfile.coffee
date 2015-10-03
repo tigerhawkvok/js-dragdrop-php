@@ -36,8 +36,6 @@ module.exports = (grunt) ->
           ]
       dist:
         src: "css/main.css"
-      drop:
-        src: "css/shadow-dropzone.css"
     uglify:
       options:
         mangle:
@@ -63,24 +61,6 @@ module.exports = (grunt) ->
             cascade: true
         files:
           "js/drop-upload.min.js":["js/drop-upload.js"]
-      minpurl:
-        options:
-          sourceMap:true
-          sourceMapName:"js/maps/purl.map"
-        files:
-          "js/purl.min.js": ["bower_components/purl/purl.js"]
-      minxmljson:
-        options:
-          sourceMap:true
-          sourceMapName:"js/maps/xmlToJSON.map"
-        files:
-          "js/xmlToJSON.min.js": ["bower_components/xmlToJSON/lib/xmlToJSON.js"]
-      minjcookie:
-        options:
-          sourceMap:true
-          sourceMapName:"js/maps/jquery.cookie.map"
-        files:
-          "js/jquery.cookie.min.js": ["bower_components/jquery-cookie/jquery.cookie.js"]
     less:
       # https://github.com/gruntjs/grunt-contrib-less
       options:
@@ -99,7 +79,6 @@ module.exports = (grunt) ->
       target:
         files:
           "css/main.min.css":["css/main.css"]
-          "css/dropzone.min.css":["css/shadow-dropzone.css"]
     coffee:
       compile:
         options:
@@ -117,16 +96,16 @@ module.exports = (grunt) ->
         files: ["less/main.less"]
         tasks: ["less","postcss","cssmin"]
       html:
-        files: ["index.html","admin-page.html"]
+        files: ["index.html"]
         tasks: ["bootlint","htmllint"]
     bootlint:
       options:
         stoponerror: false
         relaxerror: ['W009']
-      files: ["index.html","admin-page.html"]
+      files: ["index.html"]
     htmllint:
       all:
-        src: ["index.html","admin-page.html"]
+        src: ["index.html"]
       options:
         ignore: [/XHTML element “[a-z-]+-[a-z-]+” not allowed as child of XHTML element.*/,"Bad value “X-UA-Compatible” for attribute “http-equiv” on XHTML element “meta”.",/Bad value “theme-color”.*/,/Bad value “import” for attribute “rel” on element “link”.*/,/Element “.+” not allowed as child of element*/,/.*Illegal character in query: not a URL code point./]
   ## Now the tasks
