@@ -15,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/tigerhawkvok/js-dragdrop-php/issues"
   },
-  "homepage": "https://ssarherps.org/cndb",
+  "homepage": "https://test.agentiq.com",
   "devDependencies": {
     "autoprefixer": "^6.0.1",
     "bootlint": "^0.12.0",
@@ -32,6 +32,6 @@
     "grunt-shell": "^1.1.2",
     "grunt-string-replace": "^1.2.0",
     "less": "^2.5.1",
-    "npm-check-updates": "^2.2.0",
+    "npm-check-updates": "^2.2.0"
   }
 }
