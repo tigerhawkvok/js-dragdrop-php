@@ -1,14 +1,3 @@
-# Set up basic URI parameters
-# Uses
-# https://github.com/allmarkedup/purl
-try
-  uri = new Object()
-  uri.o = $.url()
-  uri.urlString = uri.o.attr('protocol') + '://' + uri.o.attr('host')  + uri.o.attr("directory")
-  uri.query = uri.o.attr("fragment")
-catch e
-  console.warn("PURL not installed!")
-
 window.locationData = new Object()
 locationData.params =
   enableHighAccuracy: true
@@ -121,55 +110,6 @@ decode64 = (string) ->
   catch e
     console.warn("Bad decode string provided")
     string
-
-jQuery.fn.polymerSelected = (setSelected = undefined, attrLookup = "attrForSelected") ->
-  ###
-  # See
-  # https://elements.polymer-project.org/elements/paper-menu
-  # https://elements.polymer-project.org/elements/paper-radio-group
-  #
-  # @param attrLookup is based on
-  # https://elements.polymer-project.org/elements/iron-selector?active=Polymer.IronSelectableBehavior
-  ###
-  attr = $(this).attr(attrLookup)
-  if setSelected?
-    if not isBool(setSelected)
-      try
-        $(this).get(0).select(setSelected)
-      catch e
-        return false
-    else
-      $(this).parent().children().removeAttribute("aria-selected")
-      $(this).parent().children().removeAttribute("active")
-      $(this).parent().children().removeClass("iron-selected")
-      $(this).prop("selected",setSelected)
-      $(this).prop("active",setSelected)
-      $(this).prop("aria-selected",setSelected)
-      if setSelected is true
-        $(this).addClass("iron-selected")
-  else
-    val = undefined
-    try
-      val = $(this).get(0).selected
-      if isNumber(val) and not isNull(attr)
-        itemSelector = $(this).find("paper-item")[toInt(val)]
-        val = $(itemSelector).attr(attr)
-    catch e
-      return false
-    if val is "null" or not val?
-      val = undefined
-    val
-
-jQuery.fn.polymerChecked = (setChecked = undefined) ->
-  # See
-  # https://www.polymer-project.org/docs/elements/paper-elements.html#paper-dropdown-menu
-  if setChecked?
-    jQuery(this).prop("checked",setChecked)
-  else
-    val = jQuery(this)[0].checked
-    if val is "null" or not val?
-      val = undefined
-    val
 
 
 isHovered = (selector) ->
@@ -336,76 +276,6 @@ randomInt = (lower = 0, upper = 1) ->
     [lower, upper] = [upper, lower]
   return Math.floor(start * (upper - lower + 1) + lower)
 
-# Animations
-
-
-animateLoad = (elId = "loader") ->
-  ###
-  # Suggested CSS to go with this:
-  #
-  # #loader {
-  #     position:fixed;
-  #     top:50%;
-  #     left:50%;
-  # }
-  # #loader.good::shadow .circle {
-  #     border-color: rgba(46,190,17,0.9);
-  # }
-  # #loader.bad::shadow .circle {
-  #     border-color:rgba(255,0,0,0.9);
-  # }
-  #
-  # Uses Polymer 1.0
-  ###
-  if isNumber(elId) then elId = "loader"
-  if elId.slice(0,1) is "#"
-    selector = elId
-    elId = elId.slice(1)
-  else
-    selector = "##{elId}"
-  try
-    if not $(selector).exists()
-      $("body").append("<paper-spinner id=\"#{elId}\" active></paper-spinner")
-    else
-      $(selector).attr("active",true)
-    false
-  catch e
-    console.log('Could not animate loader', e.message)
-
-
-startLoad = animateLoad
-
-stopLoad = (elId = "loader", fadeOut = 1000) ->
-  if elId.slice(0,1) is "#"
-    selector = elId
-    elId = elId.slice(1)
-  else
-    selector = "##{elId}"
-  try
-    if $(selector).exists()
-      $(selector).addClass("good")
-      delay fadeOut, ->
-        $(selector).removeClass("good")
-        $(selector).removeAttr("active")
-  catch e
-    console.log('Could not stop load animation', e.message)
-
-
-stopLoadError = (message, elId = "loader", fadeOut = 5000) ->
-  if elId.slice(0,1) is "#"
-    selector = elId
-    elId = elId.slice(1)
-  else
-    selector = "##{elId}"
-  try
-    if $(selector).exists()
-      $(selector).addClass("bad")
-      if message? then toastStatusMessage(message,"",fadeOut)
-      delay fadeOut, ->
-        $(selector).removeClass("bad")
-        $(selector).removeAttr("active")
-  catch e
-    console.log('Could not stop load error animation', e.message)
 
 
 toastStatusMessage = (message, className = "", duration = 3000, selector = "#status-message") ->
@@ -560,65 +430,6 @@ getPosterFromSrc = (srcString) ->
   catch e
     return ""
 
-doCORSget = (url, args, callback = undefined, callbackFail = undefined) ->
-  corsFail = ->
-    if typeof callbackFail is "function"
-      callbackFail()
-    else
-      throw new Error("There was an error performing the CORS request")
-  # First try the jquery way
-  settings =
-    url: url
-    data: args
-    type: "get"
-    crossDomain: true
-  try
-    $.ajax(settings)
-    .done (result) ->
-      if typeof callback is "function"
-        callback()
-        return false
-      console.log(response)
-    .fail (result,status) ->
-      console.warn("Couldn't perform jQuery AJAX CORS. Attempting manually.")
-  catch e
-    console.warn("There was an error using jQuery to perform the CORS request. Attemping manually.")
-  # Then try the long way
-  url = "#{url}?#{args}"
-  createCORSRequest = (method = "get", url) ->
-    # From http://www.html5rocks.com/en/tutorials/cors/
-    xhr = new XMLHttpRequest()
-    if "withCredentials" of xhr
-      # Check if the XMLHttpRequest object has a "withCredentials"
-      # property.
-      # "withCredentials" only exists on XMLHTTPRequest2 objects.
-      xhr.open(method,url,true)
-    else if typeof XDomainRequest isnt "undefined"
-      # Otherwise, check if XDomainRequest.
-      # XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-      xhr = new XDomainRequest()
-      xhr.open(method,url)
-    else
-      xhr = null
-    return xhr
-  # Now execute it
-  xhr = createCORSRequest("get",url)
-  if !xhr
-    throw new Error("CORS not supported")
-  xhr.onload = ->
-    response = xhr.responseText
-    if typeof callback is "function"
-      callback(response)
-    console.log(response)
-    return false
-  xhr.onerror = ->
-    console.warn("Couldn't do manual XMLHttp CORS request")
-    # Place this in the last error
-    corsFail()
-  xhr.send()
-  false
-
-
 lightboxImages = (selector = ".lightboximage", lookDeeply = false) ->
   ###
   # Lightbox images with this selector
@@ -670,8 +481,6 @@ lightboxImages = (selector = ".lightboximage", lookDeeply = false) ->
         $(this).replaceWith("<a href='#{imgUrl}' class='lightboximage'>#{tagHtml}</a>")
     catch e
       console.log("Couldn't parse through the elements")
-
-
 
 
 activityIndicatorOn = ->
@@ -744,8 +553,3 @@ foo = ->
 
 $ ->
   bindClicks()
-  formatScientificNames()
-  try
-    $('[data-toggle="tooltip"]').tooltip()
-  catch e
-    console.warn("Tooltips were attempted to be set up, but do not exist")
