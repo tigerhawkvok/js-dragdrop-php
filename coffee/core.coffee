@@ -278,38 +278,26 @@ randomInt = (lower = 0, upper = 1) ->
 
 
 
-toastStatusMessage = (message, className = "", duration = 3000, selector = "#status-message") ->
+toastStatusMessage = (message, type = "warning", selector = "#status-message") ->
   ###
   # Pop up a status message
+  # Uses the Bootstrap alert dialog
+  #
+  # See
+  # http://getbootstrap.com/components/#alerts
+  # for available types
   ###
-  unless window.metaTracker?.isToasting?
-    unless window.metaTracker?
-      window.metaTracker = new Object()
-      window.metaTracker.isToasting = false
-  if window.metaTracker.isToasting
-    delay 250, ->
-      # Wait and call again
-      toastStatusMessage(message, className, duration, selector)
-    return false
-  window.metaTracker.isToasting = true
-  if not isNumber(duration)
-    duration = 3000
-  if selector.slice(0,1) is not "#"
-    selector = "##{selector}"
   if not $(selector).exists()
-    html = "<paper-toast id=\"#{selector.slice(1)}\" duration=\"#{duration}\"></paper-toast>"
-    $(html).appendTo("body")
-  $(selector)
-  .attr("text",message)
-  .text(message)
-  .addClass(className)
-  $(selector).get(0).show()
-  delay duration + 500, ->
-    # A short time after it hides, clean it up
-    $(selector).empty()
-    $(selector).removeClass(className)
-    $(selector).attr("text","")
-    window.metaTracker.isToasting = false
+    html = """
+    <div class="alert alert-#{type} alert-dismissable" role="alert" id="#{selector.slice(1)}">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div class="alert-message"></div>
+    </div>
+    """
+    topContainer = if $("main").exists() then "main" else if $("article").exists() then "article" else "body"
+    $(html).prepend(topContainer)
+  $("#{selector} .alert-message").html(message)
+
 
 openLink = (url) ->
   if not url? then return false

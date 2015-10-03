@@ -1,16 +1,6 @@
 (function() {
-  var activityIndicatorOff, activityIndicatorOn, animateLoad, bindClicks, byteCount, d$, decode64, deepJQuery, delay, doCORSget, dropperParams, e, encode64, foo, formatScientificNames, getLocation, getMaxZ, getPosterFromSrc, goTo, handleDragDropImage, isBlank, isBool, isEmpty, isHovered, isJson, isNull, isNumber, jsonTo64, lightboxImages, loadJS, mapNewWindows, openLink, openTab, overlayOff, overlayOn, prepURI, randomInt, roundNumber, roundNumberSigfig, startLoad, stopLoad, stopLoadError, toFloat, toInt, toObject, toastStatusMessage, uri,
+  var activityIndicatorOff, activityIndicatorOn, bindClicks, byteCount, d$, decode64, deepJQuery, delay, encode64, foo, formatScientificNames, getLocation, getMaxZ, getPosterFromSrc, goTo, handleDragDropImage, isBlank, isBool, isEmpty, isHovered, isJson, isNull, isNumber, jsonTo64, lightboxImages, loadJS, mapNewWindows, openLink, openTab, overlayOff, overlayOn, prepURI, randomInt, roundNumber, roundNumberSigfig, toFloat, toInt, toObject, toastStatusMessage,
     slice = [].slice;
-
-  try {
-    uri = new Object();
-    uri.o = $.url();
-    uri.urlString = uri.o.attr('protocol') + '://' + uri.o.attr('host') + uri.o.attr("directory");
-    uri.query = uri.o.attr("fragment");
-  } catch (_error) {
-    e = _error;
-    console.warn("PURL not installed!");
-  }
 
   window.locationData = new Object();
 
@@ -23,6 +13,7 @@
   window.debounce_timer = null;
 
   isBool = function(str, strict) {
+    var e;
     if (strict == null) {
       strict = false;
     }
@@ -55,6 +46,7 @@
   };
 
   isNull = function(str) {
+    var e;
     try {
       if (isEmpty(str) || isBlank(str) || (str == null)) {
         if (!(str === false || str === 0)) {
@@ -69,6 +61,7 @@
   };
 
   isJson = function(str) {
+    var e;
     if (typeof str === 'object') {
       return true;
     }
@@ -117,7 +110,7 @@
   };
 
   Object.size = function(obj) {
-    var key, size;
+    var e, key, size;
     if (typeof obj !== "object") {
       try {
         return obj.length;
@@ -179,6 +172,7 @@
   };
 
   encode64 = function(string) {
+    var e;
     try {
       return Base64.encode(string);
     } catch (_error) {
@@ -189,84 +183,13 @@
   };
 
   decode64 = function(string) {
+    var e;
     try {
       return Base64.decode(string);
     } catch (_error) {
       e = _error;
       console.warn("Bad decode string provided");
       return string;
-    }
-  };
-
-  jQuery.fn.polymerSelected = function(setSelected, attrLookup) {
-    var attr, itemSelector, val;
-    if (setSelected == null) {
-      setSelected = void 0;
-    }
-    if (attrLookup == null) {
-      attrLookup = "attrForSelected";
-    }
-
-    /*
-     * See
-     * https://elements.polymer-project.org/elements/paper-menu
-     * https://elements.polymer-project.org/elements/paper-radio-group
-     *
-     * @param attrLookup is based on
-     * https://elements.polymer-project.org/elements/iron-selector?active=Polymer.IronSelectableBehavior
-     */
-    attr = $(this).attr(attrLookup);
-    if (setSelected != null) {
-      if (!isBool(setSelected)) {
-        try {
-          return $(this).get(0).select(setSelected);
-        } catch (_error) {
-          e = _error;
-          return false;
-        }
-      } else {
-        $(this).parent().children().removeAttribute("aria-selected");
-        $(this).parent().children().removeAttribute("active");
-        $(this).parent().children().removeClass("iron-selected");
-        $(this).prop("selected", setSelected);
-        $(this).prop("active", setSelected);
-        $(this).prop("aria-selected", setSelected);
-        if (setSelected === true) {
-          return $(this).addClass("iron-selected");
-        }
-      }
-    } else {
-      val = void 0;
-      try {
-        val = $(this).get(0).selected;
-        if (isNumber(val) && !isNull(attr)) {
-          itemSelector = $(this).find("paper-item")[toInt(val)];
-          val = $(itemSelector).attr(attr);
-        }
-      } catch (_error) {
-        e = _error;
-        return false;
-      }
-      if (val === "null" || (val == null)) {
-        val = void 0;
-      }
-      return val;
-    }
-  };
-
-  jQuery.fn.polymerChecked = function(setChecked) {
-    var val;
-    if (setChecked == null) {
-      setChecked = void 0;
-    }
-    if (setChecked != null) {
-      return jQuery(this).prop("checked", setChecked);
-    } else {
-      val = jQuery(this)[0].checked;
-      if (val === "null" || (val == null)) {
-        val = void 0;
-      }
-      return val;
     }
   };
 
@@ -310,7 +233,7 @@
   };
 
   loadJS = function(src, callback, doCallbackOnError) {
-    var errorFunction, onLoadFunction, s;
+    var e, errorFunction, onLoadFunction, s;
     if (callback == null) {
       callback = new Object();
     }
@@ -417,7 +340,7 @@
   };
 
   Function.prototype.debounce = function() {
-    var args, delayed, execAsap, func, threshold, timeout;
+    var args, delayed, e, execAsap, func, threshold, timeout;
     threshold = arguments[0], execAsap = arguments[1], timeout = arguments[2], args = 4 <= arguments.length ? slice.call(arguments, 3) : [];
     if (threshold == null) {
       threshold = 300;
@@ -466,119 +389,10 @@
     return Math.floor(start * (upper - lower + 1) + lower);
   };
 
-  animateLoad = function(elId) {
-    var selector;
-    if (elId == null) {
-      elId = "loader";
-    }
-
-    /*
-     * Suggested CSS to go with this:
-     *
-     * #loader {
-     *     position:fixed;
-     *     top:50%;
-     *     left:50%;
-     * }
-     * #loader.good::shadow .circle {
-     *     border-color: rgba(46,190,17,0.9);
-     * }
-     * #loader.bad::shadow .circle {
-     *     border-color:rgba(255,0,0,0.9);
-     * }
-     *
-     * Uses Polymer 1.0
-     */
-    if (isNumber(elId)) {
-      elId = "loader";
-    }
-    if (elId.slice(0, 1) === "#") {
-      selector = elId;
-      elId = elId.slice(1);
-    } else {
-      selector = "#" + elId;
-    }
-    try {
-      if (!$(selector).exists()) {
-        $("body").append("<paper-spinner id=\"" + elId + "\" active></paper-spinner");
-      } else {
-        $(selector).attr("active", true);
-      }
-      return false;
-    } catch (_error) {
-      e = _error;
-      return console.log('Could not animate loader', e.message);
-    }
-  };
-
-  startLoad = animateLoad;
-
-  stopLoad = function(elId, fadeOut) {
-    var selector;
-    if (elId == null) {
-      elId = "loader";
-    }
-    if (fadeOut == null) {
-      fadeOut = 1000;
-    }
-    if (elId.slice(0, 1) === "#") {
-      selector = elId;
-      elId = elId.slice(1);
-    } else {
-      selector = "#" + elId;
-    }
-    try {
-      if ($(selector).exists()) {
-        $(selector).addClass("good");
-        return delay(fadeOut, function() {
-          $(selector).removeClass("good");
-          return $(selector).removeAttr("active");
-        });
-      }
-    } catch (_error) {
-      e = _error;
-      return console.log('Could not stop load animation', e.message);
-    }
-  };
-
-  stopLoadError = function(message, elId, fadeOut) {
-    var selector;
-    if (elId == null) {
-      elId = "loader";
-    }
-    if (fadeOut == null) {
-      fadeOut = 5000;
-    }
-    if (elId.slice(0, 1) === "#") {
-      selector = elId;
-      elId = elId.slice(1);
-    } else {
-      selector = "#" + elId;
-    }
-    try {
-      if ($(selector).exists()) {
-        $(selector).addClass("bad");
-        if (message != null) {
-          toastStatusMessage(message, "", fadeOut);
-        }
-        return delay(fadeOut, function() {
-          $(selector).removeClass("bad");
-          return $(selector).removeAttr("active");
-        });
-      }
-    } catch (_error) {
-      e = _error;
-      return console.log('Could not stop load error animation', e.message);
-    }
-  };
-
-  toastStatusMessage = function(message, className, duration, selector) {
-    var html, ref;
-    if (className == null) {
-      className = "";
-    }
-    if (duration == null) {
-      duration = 3000;
+  toastStatusMessage = function(message, type, selector) {
+    var html, topContainer;
+    if (type == null) {
+      type = "warning";
     }
     if (selector == null) {
       selector = "#status-message";
@@ -586,38 +400,18 @@
 
     /*
      * Pop up a status message
+     * Uses the Bootstrap alert dialog
+     *
+     * See
+     * http://getbootstrap.com/components/#alerts
+     * for available types
      */
-    if (((ref = window.metaTracker) != null ? ref.isToasting : void 0) == null) {
-      if (window.metaTracker == null) {
-        window.metaTracker = new Object();
-        window.metaTracker.isToasting = false;
-      }
-    }
-    if (window.metaTracker.isToasting) {
-      delay(250, function() {
-        return toastStatusMessage(message, className, duration, selector);
-      });
-      return false;
-    }
-    window.metaTracker.isToasting = true;
-    if (!isNumber(duration)) {
-      duration = 3000;
-    }
-    if (selector.slice(0, 1) === !"#") {
-      selector = "#" + selector;
-    }
     if (!$(selector).exists()) {
-      html = "<paper-toast id=\"" + (selector.slice(1)) + "\" duration=\"" + duration + "\"></paper-toast>";
-      $(html).appendTo("body");
+      html = "<div class=\"alert alert-" + type + " alert-dismissable\" role=\"alert\" id=\"" + (selector.slice(1)) + "\">\n  <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n    <div class=\"alert-message\"></div>\n</div>";
+      topContainer = $("main").exists() ? "main" : $("article").exists() ? "article" : "body";
+      $(html).prepend(topContainer);
     }
-    $(selector).attr("text", message).text(message).addClass(className);
-    $(selector).get(0).show();
-    return delay(duration + 500, function() {
-      $(selector).empty();
-      $(selector).removeClass(className);
-      $(selector).attr("text", "");
-      return window.metaTracker.isToasting = false;
-    });
+    return $(selector + " .alert-message").html(message);
   };
 
   openLink = function(url) {
@@ -678,6 +472,7 @@
      * Cross-browser, works with Chrome, Firefox, Opera, Safari, and IE
      * Falls back to standard jQuery selector when everything fails.
      */
+    var e;
     try {
       if (!$("html /deep/ " + selector).exists()) {
         throw "Bad /deep/ selector";
@@ -712,7 +507,7 @@
      * URL data-href.
      */
     $(selector).each(function() {
-      var callable, url;
+      var callable, e, url;
       try {
         url = $(this).attr("data-href");
         if (!isNull(url)) {
@@ -762,7 +557,7 @@
      * Take the "src" attribute of a video and get the
      * "png" screencap from it, and return the value.
      */
-    var dummy, split;
+    var dummy, e, split;
     try {
       split = srcString.split(".");
       dummy = split.pop();
@@ -772,79 +567,6 @@
       e = _error;
       return "";
     }
-  };
-
-  doCORSget = function(url, args, callback, callbackFail) {
-    var corsFail, createCORSRequest, settings, xhr;
-    if (callback == null) {
-      callback = void 0;
-    }
-    if (callbackFail == null) {
-      callbackFail = void 0;
-    }
-    corsFail = function() {
-      if (typeof callbackFail === "function") {
-        return callbackFail();
-      } else {
-        throw new Error("There was an error performing the CORS request");
-      }
-    };
-    settings = {
-      url: url,
-      data: args,
-      type: "get",
-      crossDomain: true
-    };
-    try {
-      $.ajax(settings).done(function(result) {
-        if (typeof callback === "function") {
-          callback();
-          return false;
-        }
-        return console.log(response);
-      }).fail(function(result, status) {
-        return console.warn("Couldn't perform jQuery AJAX CORS. Attempting manually.");
-      });
-    } catch (_error) {
-      e = _error;
-      console.warn("There was an error using jQuery to perform the CORS request. Attemping manually.");
-    }
-    url = url + "?" + args;
-    createCORSRequest = function(method, url) {
-      var xhr;
-      if (method == null) {
-        method = "get";
-      }
-      xhr = new XMLHttpRequest();
-      if ("withCredentials" in xhr) {
-        xhr.open(method, url, true);
-      } else if (typeof XDomainRequest !== "undefined") {
-        xhr = new XDomainRequest();
-        xhr.open(method, url);
-      } else {
-        xhr = null;
-      }
-      return xhr;
-    };
-    xhr = createCORSRequest("get", url);
-    if (!xhr) {
-      throw new Error("CORS not supported");
-    }
-    xhr.onload = function() {
-      var response;
-      response = xhr.responseText;
-      if (typeof callback === "function") {
-        callback(response);
-      }
-      console.log(response);
-      return false;
-    };
-    xhr.onerror = function() {
-      console.warn("Couldn't do manual XMLHttp CORS request");
-      return corsFail();
-    };
-    xhr.send();
-    return false;
   };
 
   lightboxImages = function(selector, lookDeeply) {
@@ -895,7 +617,7 @@
         return console.error("Unable to lightbox this image!");
       }
     }).each(function() {
-      var imgUrl, tagHtml;
+      var e, imgUrl, tagHtml;
       console.log("Using selectors '" + selector + "' / '" + this + "' for lightboximages");
       try {
         if ($(this).prop("tagName").toLowerCase() === "img" && $(this).parent().prop("tagName").toLowerCase() !== "a") {
@@ -1026,19 +748,14 @@
   };
 
   $(function() {
-    bindClicks();
-    formatScientificNames();
-    try {
-      return $('[data-toggle="tooltip"]').tooltip();
-    } catch (_error) {
-      e = _error;
-      return console.warn("Tooltips were attempted to be set up, but do not exist");
-    }
+    return bindClicks();
   });
 
-  dropperParams = new Object();
+  window.dropperParams = new Object();
 
   dropperParams.metaPath = "FOOBAR";
+
+  dropperParams.uploadPath = "uploaded_images";
 
   handleDragDropImage = function(uploadTargetSelector, callback) {
     if (uploadTargetSelector == null) {
@@ -1048,15 +765,17 @@
     /*
      * Take a drag-and-dropped image, and save it out to the database.
      * This function should be called on page load.
+     *
+     * This function is Shadow-DOM aware, and will work on Webcomponents.
      */
     if (typeof callback !== "function") {
       callback = function(file, result) {
-        var ext, fileName, fullFile, fullPath;
+        var e, ext, fileName, fullFile, fullPath;
         if (result.status !== true) {
           if (result.human_error == null) {
             result.human_error = "There was a problem uploading your image.";
           }
-          toastStatusMessage(result.human_error);
+          toastStatusMessage("<strong>Error</strong>" + result.human_error, "danger");
           console.error("Error uploading!", result);
           return false;
         }
@@ -1065,14 +784,14 @@
           dropperParams.dropzone.disable();
           ext = fileName.split(".").pop();
           fullFile = (md5(fileName)) + "." + ext;
-          fullPath = "species_photos/" + fullFile;
+          fullPath = dropperParams.uploadPath + "/" + fullFile;
           d$("#edit-image").attr("disabled", "disabled").attr("value", fullPath);
-          toastStatusMessage("Upload complete");
+          toastStatusMessage("Upload complete", "success");
         } catch (_error) {
           e = _error;
           console.error("There was a problem with upload post-processing - " + e.message);
           console.warn("Using", fileName, result);
-          toastStatusMessage("Your upload completed, but we couldn't post-process it.");
+          toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger");
         }
         return false;
       };
@@ -1086,13 +805,13 @@
       c.setAttribute("href", "css/dropzone.min.css");
       document.getElementsByTagName('head')[0].appendChild(c);
       Dropzone.autoDiscover = false;
-      defaultText = "Drop a high-resolution image for the taxon here.";
+      defaultText = "Drop your image here.";
       dragCancel = function() {
         d$(uploadTargetSelector).css("box-shadow", "").css("border", "");
         return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
       };
       dropzoneConfig = {
-        url: dropperParams.metaPath + "meta.php?do=upload_image",
+        url: dropperParams.metaPath + "/meta.php?do=upload_image",
         acceptedFiles: "image/*",
         autoProcessQueue: true,
         maxFiles: 1,
@@ -1108,6 +827,8 @@
             d$(uploadTargetSelector + " .dz-message span").text("Drop here to upload the image");
 
             /*
+             * We want to hint a good hover -- so we use CSS
+             *
              * box-shadow: 0px 0px 15px rgba(15,157,88,.8);
              * border: 1px solid #0F9D58;
              */
