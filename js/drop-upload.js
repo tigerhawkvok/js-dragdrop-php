@@ -751,9 +751,11 @@
     return bindClicks();
   });
 
-  window.dropperParams = new Object();
+  if (window.dropperParams == null) {
+    window.dropperParams = new Object();
+  }
 
-  dropperParams.metaPath = "FOOBAR";
+  dropperParams.metaPath = "";
 
   dropperParams.uploadPath = "uploaded_images";
 
@@ -784,7 +786,7 @@
           dropperParams.dropzone.disable();
           ext = fileName.split(".").pop();
           fullFile = (md5(fileName)) + "." + ext;
-          fullPath = dropperParams.uploadPath + "/" + fullFile;
+          fullPath = "" + dropperParams.uploadPath + fullFile;
           d$("#edit-image").attr("disabled", "disabled").attr("value", fullPath);
           toastStatusMessage("Upload complete", "success");
         } catch (_error) {
@@ -798,20 +800,20 @@
     }
     loadJS("bower_components/JavaScript-MD5/js/md5.min.js");
     loadJS("bower_components/dropzone/dist/min/dropzone.min.js", function() {
-      var c, defaultText, dragCancel, dropzoneConfig, fileUploadDropzone;
+      var c, defaultText, dragCancel, dropzoneConfig, fileUploadDropzone, ref;
       c = document.createElement("link");
       c.setAttribute("rel", "stylesheet");
       c.setAttribute("type", "text/css");
-      c.setAttribute("href", "css/dropzone.min.css");
+      c.setAttribute("href", dropperParams.metaPath + "css/main.min.css");
       document.getElementsByTagName('head')[0].appendChild(c);
       Dropzone.autoDiscover = false;
-      defaultText = "Drop your image here.";
+      defaultText = (ref = dropperParams.uploadText) != null ? ref : "Drop your image here.";
       dragCancel = function() {
         d$(uploadTargetSelector).css("box-shadow", "").css("border", "");
         return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
       };
       dropzoneConfig = {
-        url: dropperParams.metaPath + "/meta.php?do=upload_image",
+        url: dropperParams.metaPath + "meta.php?do=upload_image",
         acceptedFiles: "image/*",
         autoProcessQueue: true,
         maxFiles: 1,

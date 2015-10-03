@@ -6,7 +6,7 @@
     <meta charset="UTF-8"/>
     <meta name="theme-color" content="#445e14"/>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    
+
     <link rel="stylesheet" type="text/css" media="screen" href="css/main.min.css"/>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -28,7 +28,8 @@
       };
 
       $(function() {
-      return window.dropperParams.handleDragDropImage(dropTargetSelector, postUploadCallback);
+      window.dropperParams.metaPath = "http://velociraptorsystems.com/samples/js-dragdrop-upload";
+      return window.dropperParams.handleDragDropImage(dropTargetSelector);
       });
 
       }).call(this);
@@ -38,7 +39,7 @@
     <main>
       <section class="chat-box form-horizontal">
         <div id="chat-region">
-          
+
         </div>
         <div id="entry-region" class="form-group">
           <label for="new-message">Message:</label>

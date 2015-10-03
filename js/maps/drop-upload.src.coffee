@@ -542,11 +542,12 @@ foo = ->
 $ ->
   bindClicks()
 
-window.dropperParams = new Object()
+unless window.dropperParams?
+  window.dropperParams = new Object()
 # Path to where meta.php lives. This is the file that handles the
 # server-side upload.
-dropperParams.metaPath = "FOOBAR" # No trailing slash
-dropperParams.uploadPath = "uploaded_images" # No trailing slash
+dropperParams.metaPath = "" 
+dropperParams.uploadPath = "uploaded_images" 
 
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
   ###
@@ -573,7 +574,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
         ext = fileName.split(".").pop()
         # MD5.extension is the goal
         fullFile = "#{md5(fileName)}.#{ext}"
-        fullPath = "#{dropperParams.uploadPath}/#{fullFile}"
+        fullPath = "#{dropperParams.uploadPath}#{fullFile}"
         # Insert it into the field
         d$("#edit-image")
         .attr("disabled","disabled")
@@ -584,6 +585,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
         console.warn("Using",fileName,result)
         toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger")
       false
+  ## The main script
   # Load dependencies
   loadJS("bower_components/JavaScript-MD5/js/md5.min.js")
   loadJS "bower_components/dropzone/dist/min/dropzone.min.js", ->
@@ -592,18 +594,18 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
     c = document.createElement("link")
     c.setAttribute("rel","stylesheet")
     c.setAttribute("type","text/css")
-    c.setAttribute("href","css/dropzone.min.css")
+    c.setAttribute("href","#{dropperParams.metaPath}css/main.min.css")
     document.getElementsByTagName('head')[0].appendChild(c)
     Dropzone.autoDiscover = false
     # See http://www.dropzonejs.com/#configuration
-    defaultText = "Drop your image here."
+    defaultText = dropperParams.uploadText ? "Drop your image here."
     dragCancel = ->
       d$(uploadTargetSelector)
       .css("box-shadow","")
       .css("border","")
       d$("#{uploadTargetSelector} .dz-message span").text(defaultText)
     dropzoneConfig =
-      url: "#{dropperParams.metaPath}/meta.php?do=upload_image"
+      url: "#{dropperParams.metaPath}meta.php?do=upload_image"
       acceptedFiles: "image/*"
       autoProcessQueue: true
       maxFiles: 1
