@@ -1,3 +1,6 @@
+dropperParams = new Object()
+dropperParams.metaPath = "FOOBAR"
+
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
   ###
   # Take a drag-and-dropped image, and save it out to the database.
@@ -14,7 +17,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       try
         fileName = file.name
         # Disable the selector
-        ssar.dropzone.disable()
+        dropperParams.dropzone.disable()
         # Now, process the rename and insert it into the file area
         # Get the MD5 of the original filename
         ext = fileName.split(".").pop()
@@ -50,7 +53,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       .css("border","")
       d$("#{uploadTargetSelector} .dz-message span").text(defaultText)
     dropzoneConfig =
-      url: "#{uri.urlString}meta.php?do=upload_image"
+      url: "#{dropperParams.metaPath}meta.php?do=upload_image"
       acceptedFiles: "image/*"
       autoProcessQueue: true
       maxFiles: 1
@@ -81,5 +84,5 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
     unless d$(uploadTargetSelector).hasClass("dropzone")
       d$(uploadTargetSelector).addClass("dropzone")
     fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig)
-    ssar.dropzone = fileUploadDropzone
+    dropperParams.dropzone = fileUploadDropzone
   false
