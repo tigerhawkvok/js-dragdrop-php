@@ -45,11 +45,39 @@ function returnAjax($data)
     exit();
 }
 
-function getUserFileModTime() {
-  return filemtime("js/c.min.js");
+
+function getRelativePath($fullPath) {
+    /***
+     * Get relative descendant path. Useful for cleaning up full paths
+     * of the server filesystem into something more web friendly.
+     *
+     * @param fullPath the full path to a file, that is in a
+     * descendant directory of this one.
+     ***/
+    
+    return str_replace(dirname(__FILE__) . "/", "", $fullPath);
 }
 
 function doUploadImage() {
+    /***
+     * Works with the default $_FILES object and handles image
+     * uploads.
+     *
+     * It then creates a thumbnail for easy display.
+     *
+     * It has the following optional parameters, that should be
+     * provided in the POST / GET request:
+     *
+     *
+     * @param uploadpath the path, relative to this file, to save the
+     * uploaded images. Should end in a trailing slash.
+     *
+     * @param thumb_width the maximum width of a thumbnail. (Aspect
+     * ratio will be maintained)
+     *
+     * @param thumb_height the maximum height of a thumbnail (Aspect
+     * ratio will be maintained)
+     ***/
     if(empty($_FILES)) {
         return array("status"=>false,"error"=>"No files provided","human_error"=>"Please provide a file to upload");
     }
@@ -72,7 +100,7 @@ function doUploadImage() {
     # it'll return an invalid JSON response
     error_reporting(0); # Disable this for debugging
     $status = move_uploaded_file($temp,$fileWritePath);
-    $uploadStatus = array("status"=>$status,"original_file"=>$file,"wrote_file"=>$newFilePath,"full_path"=>$fileWritePath);
+    $uploadStatus = array("status"=>$status,"original_file"=>$file,"wrote_file"=>$newFilePath,"full_path"=>getRelativePath($fileWritePath));
     if(!$status) {
         # We bugged out on completing the upload. Return this status.
         return $uploadStatus;
@@ -90,7 +118,9 @@ function doUploadImage() {
     }
     $fileThumb = $savePath . $fileName . "-thumb." . $extension;
     $resizeStatus = ImageFunctions::staticResizeImage($fileWritePath, $fileThumb, $thumb_max_width, $thumb_max_height);
+    $resizeStatus["output"] = getRelativePath($resizeStatus["output"]);
     $uploadStatus["resize_status"] = $resizeStatus;
+    $uploadStatus["thumb_path"] = $resizeStatus["output"];
     return $uploadStatus;   
 }
 
@@ -100,9 +130,7 @@ $do = isset($_REQUEST['do']) ? strtolower($_REQUEST['do']):null;
 
 switch($do)
 {
-case "get_last_mod":
-    returnAjax(array("last_mod"=>getUserFileModTime()));
-    break;
+# Extend other switches in here as cases ...
 case "upload_image":
     returnAjax(doUploadImage());
     break;
