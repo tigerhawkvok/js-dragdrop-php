@@ -21,14 +21,14 @@
       (function() {
       var dropTargetSelector, postUploadCallback;
 
-      dropTargetSelector = "#new-message";
+      dropTargetSelector = "#drop-target";
 
       postUploadCallback = function() {
       return false;
       };
 
       $(function() {
-      window.dropperParams.metaPath = "http://velociraptorsystems.com/samples/js-dragdrop-upload";
+      window.dropperParams.metaPath = "http://velociraptorsystems.com/samples/js-dragdrop-upload/";
       return window.dropperParams.handleDragDropImage(dropTargetSelector);
       });
 
@@ -36,16 +36,19 @@
     </script>
   </head>
   <body class="container">
+    <h1>Uploader Test</h1>
     <main>
       <section class="chat-box form-horizontal">
-        <div id="chat-region">
+        <h2>Chat</h2>
+        <div id="chat-region" style="min-height: 25vh; border: 1px solid black; ">
 
         </div>
         <div id="entry-region" class="form-group">
           <label for="new-message">Message:</label>
-          <textarea id="new-message" class="message-input form-control" placeholder="Message ..."></textarea>
+          <textarea id="new-message" class="message-input form-control" placeholder="Message ..."></textarea>          
           <button type="submit" class="btn btn-default">Send</button>
         </div>
+        <div id='drop-target' style='width:15em; height:10em; border: 1px solid black;'></div>
       </section>
     </main>
   </body>

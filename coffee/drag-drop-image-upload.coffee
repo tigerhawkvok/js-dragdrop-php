@@ -3,7 +3,9 @@ unless window.dropperParams?
 # Path to where meta.php lives. This is the file that handles the
 # server-side upload.
 dropperParams.metaPath = "" 
-dropperParams.uploadPath = "uploaded_images" 
+dropperParams.uploadPath = "uploaded_images/"
+dropperParams.dropzonePath = "bower_components/dropzone/dist/min/dropzone.min.js"
+dropperParams.md5Path = "bower_components/JavaScript-MD5/js/md5.min.js"
 
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
   ###
@@ -15,10 +17,14 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
   # If no callback is provided, we use this default one
   unless typeof callback is "function"
     callback = (file, result) ->
+      if typeof result isnt "object"
+        console.error "Dropzone returned an error - #{result}"
+        toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger")
+        return false
       unless result.status is true
         # Yikes! Didn't work
         result.human_error ?= "There was a problem uploading your image."
-        toastStatusMessage("<strong>Error</strong>#{result.human_error}", "danger")
+        toastStatusMessage("<strong>Error</strong> #{result.human_error}", "danger")
         console.error("Error uploading!",result)
         return false
       try
@@ -43,8 +49,8 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       false
   ## The main script
   # Load dependencies
-  loadJS("bower_components/JavaScript-MD5/js/md5.min.js")
-  loadJS "bower_components/dropzone/dist/min/dropzone.min.js", ->
+  loadJS dropperParams.md5Path
+  loadJS dropperParams.dropzonePath, ->
     # Dropzone has been loaded!
     # Add the CSS
     c = document.createElement("link")
@@ -61,16 +67,17 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       .css("border","")
       d$("#{uploadTargetSelector} .dz-message span").text(defaultText)
     dropzoneConfig =
-      url: "#{dropperParams.metaPath}meta.php?do=upload_image"
+      url: "#{dropperParams.metaPath}meta.php?do=upload_image&uploadpath=#{dropperParams.uploadPath}"
       acceptedFiles: "image/*"
       autoProcessQueue: true
       maxFiles: 1
       dictDefaultMessage: defaultText
       init: ->
-        @on "error", ->
-          toastStatusMessage("An error occured sending your image to the server.")
+        # See http://www.dropzonejs.com/#events
+        @on "error", (file, errorMessage) ->
+          toastStatusMessage("An error occured sending your image to the server - #{errorMessage}.", "danger")
         @on "canceled", ->
-          toastStatusMessage("Upload canceled.")
+          toastStatusMessage("Upload canceled.", "info")
         @on "dragover", ->
           d$("#{uploadTargetSelector} .dz-message span").text("Drop here to upload the image")
           ###
@@ -96,3 +103,6 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
     fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig)
     dropperParams.dropzone = fileUploadDropzone
   false
+
+
+dropperParams.handleDragDropImage = handleDragDropImage

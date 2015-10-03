@@ -295,7 +295,7 @@ toastStatusMessage = (message, type = "warning", selector = "#status-message") -
     </div>
     """
     topContainer = if $("main").exists() then "main" else if $("article").exists() then "article" else "body"
-    $(html).prepend(topContainer)
+    $(topContainer).prepend(html)
   $("#{selector} .alert-message").html(message)
 
 
