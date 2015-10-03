@@ -764,13 +764,13 @@ if (dropperParams.uploadPath == null) {
   dropperParams.uploadPath = "uploaded_images/";
 }
 
-if (dropperParams.dropzonePath == null) {
-  dropperParams.dropzonePath = "bower_components/dropzone/dist/min/dropzone.min.js";
+if (dropperParams.dependencyPath == null) {
+  dropperParams.dependencyPath = "bower_components/";
 }
 
-if (dropperParams.md5Path == null) {
-  dropperParams.md5Path = "bower_components/JavaScript-MD5/js/md5.min.js";
-}
+dropperParams.dropzonePath = dropperParams.dependencyPath + "dropzone/dist/min/dropzone.min.js";
+
+dropperParams.md5Path = dropperParams.dependencyPath + "JavaScript-MD5/js/md5.min.js";
 
 if (dropperParams.thumbWidth == null) {
   dropperParams.thumbWidth = 640;
@@ -778,6 +778,10 @@ if (dropperParams.thumbWidth == null) {
 
 if (dropperParams.thumbHeight == null) {
   dropperParams.thumbHeight = 480;
+}
+
+if (dropperParams.showProgress == null) {
+  dropperParams.showProgress = false;
 }
 
 handleDragDropImage = function(uploadTargetSelector, callback) {
@@ -866,9 +870,26 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
           return dragCancel();
         });
         this.on("drop", function() {
-          return dragCancel();
+          var html;
+          dragCancel();
+          if (dropperParams.showProgress === true) {
+            html = "<div class=\"image-upload-progress\">\n  <div class=\"progress\">\n    <div class=\"progress-bar progress-bar-striped active\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"min-width:2em;\">\n      <span class=\"upload-percent\">0</span>%<span class=\"sr-only\"> Complete</span>\n    </div>\n  </div>\n  <p class=\"text-center text-muted\"><span class=\"bytes-done\">0</span>/<span class=\"bytes-total\">0</span> bytes</p>\n</div>";
+            return d$(uploadTargetSelector).after(html);
+          }
+        });
+        this.on("uploadprogress", function(file, progress, bytes) {
+          var progressBar;
+          progressBar = d$(uploadTargetSelector + " + .image-upload-progress");
+          if (progressBar.exists()) {
+            progress = toInt(progress);
+            progressBar.find(".progress-bar").attr("aria-valuenow", progress).css("width", progress + "%");
+            progressBar.find(".upload-percent").text(progress);
+            progressBar.find(".bytes-done").text(bytes);
+            return progressBar.find(".bytes-total").text(file.size);
+          }
         });
         return this.on("success", function(file, result) {
+          d$(uploadTargetSelector + " + .image-upload-progress").remove();
           return callback(file, result);
         });
       }

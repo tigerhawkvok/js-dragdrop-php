@@ -37,4 +37,5 @@ postUploadCallback = (file, result) ->
 
 $ ->
   window.dropperParams.metaPath = "http://velociraptorsystems.com/samples/js-dragdrop-upload/"
+  window.dropperParams.showProgress = true
   window.dropperParams.handleDragDropImage dropTargetSelector, postUploadCallback

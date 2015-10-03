@@ -550,10 +550,12 @@ unless window.dropperParams?
 # server-side upload.
 dropperParams.metaPath ?= ""
 dropperParams.uploadPath ?= "uploaded_images/"
-dropperParams.dropzonePath ?= "bower_components/dropzone/dist/min/dropzone.min.js"
-dropperParams.md5Path ?= "bower_components/JavaScript-MD5/js/md5.min.js"
+dropperParams.dependencyPath ?= "bower_components/"
+dropperParams.dropzonePath = "#{dropperParams.dependencyPath}dropzone/dist/min/dropzone.min.js"
+dropperParams.md5Path = "#{dropperParams.dependencyPath}JavaScript-MD5/js/md5.min.js"
 dropperParams.thumbWidth ?= 640
 dropperParams.thumbHeight ?= 480
+dropperParams.showProgress ?= false
 
 
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
@@ -634,7 +636,33 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
           dragCancel()
         @on "drop", ->
           dragCancel()
+          if dropperParams.showProgress is true
+            # Show a bootstrap progress bar
+            # http://getbootstrap.com/components/#progress
+            html = """
+            <div class="image-upload-progress">
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width:2em;">
+                  <span class="upload-percent">0</span>%<span class="sr-only"> Complete</span>
+                </div>
+              </div>
+              <p class="text-center text-muted"><span class="bytes-done">0</span>/<span class="bytes-total">0</span> bytes</p>
+            </div>
+            """
+            d$(uploadTargetSelector).after(html)
+        @on "uploadprogress", (file, progress, bytes) ->
+          progressBar = d$("#{uploadTargetSelector} + .image-upload-progress")          
+          if progressBar.exists()
+            progress = toInt(progress)
+            # Handle the upload
+            progressBar.find(".progress-bar")
+            .attr("aria-valuenow",progress)
+            .css("width","#{progress}%")
+            progressBar.find(".upload-percent").text(progress)
+            progressBar.find(".bytes-done").text(bytes)
+            progressBar.find(".bytes-total").text(file.size)
         @on "success", (file, result) ->
+          d$("#{uploadTargetSelector} + .image-upload-progress").remove()
           callback(file, result)
     # Create the upload target
     unless d$(uploadTargetSelector).hasClass("dropzone")

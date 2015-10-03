@@ -12,8 +12,8 @@ The following optional paramaters may be specified:
 - `dropperParams.uploadText`: The text to show in the upload target. Defaults to "Drop your image here".
 - `dropperParams.thumbWidth`: Maximum thumbnail width, in pixels. Default 640.
 - `dropperParams.thumbHeight`: Maximum thumbnail height, in pixels. Default 480.
-
-
+- `dropperParams.dependencyPath`: The path to the dependencies of the library. Defaults to `bower_components/`.
+- `dropperParams.showProgress`: Show an extra progress bar beneath the drop target. Default `false`.
 
 ## License
 
