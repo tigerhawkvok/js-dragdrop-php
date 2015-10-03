@@ -108,7 +108,7 @@ module.exports = (grunt) ->
           sourceMapDir: "js/maps"
           sourceMap: true
         files:
-          "js/c.js":"coffe/*.coffee"
+          "js/c.js":"coffee/*.coffee"
     watch:
       scripts:
         files: ["coffee/*.coffee"]
@@ -134,10 +134,11 @@ module.exports = (grunt) ->
   grunt.registerTask("compile","Compile coffeescript",["coffee:compile","uglify:dist","shell:movesrc"])
   ## The minification tasks
   # Part 2
-  grunt.registerTask("minifyBulk","Minify all the things",["uglify:combine","uglify:dist","less","postcss","cssmin"])
+  grunt.registerTask("lessify", "Run less/css postprocessors", ["less","postcss","cssmin"])
+  grunt.registerTask("minifyBulk","Minify all the things",["uglify:dist"])
   # Main call
   grunt.registerTask "minify","Minify all the things",->
-    grunt.task.run("minifyBulk")
+    grunt.task.run("lessify","minifyBulk")
   ## Global update
   # Bower
   grunt.registerTask("updateBower","Update bower dependencies",["shell:bower"])
@@ -146,6 +147,7 @@ module.exports = (grunt) ->
   grunt.registerTask "update","Update dependencies", ->
     grunt.task.run("updateNPM","updateBower","minify")
   ## Deploy
+  grunt.registerTask "qbuild","Quick rebuild", ->
+    grunt.task.run("compile","minify")
   grunt.registerTask "build","Compile and update, then watch", ->
-    # ,"vulcanize"
-    grunt.task.run("updateNPM","updateBower","compile","minify")
+    grunt.task.run("updateNPM","updateBower","compile","minify", "watch")

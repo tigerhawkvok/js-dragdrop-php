@@ -16,8 +16,9 @@
     "test",
     "tests"
   ],
-    "dependencies": {
-            "dropzone": "~4.0.1",
-        "JavaScript-MD5": "~1.1.0"
-    }
+  "dependencies": {
+    "dropzone": "~4.0.1",
+    "JavaScript-MD5": "~1.1.0",
+    "bootstrap": "~3.3.5"
+  }
 }
