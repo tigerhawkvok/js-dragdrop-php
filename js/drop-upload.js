@@ -747,7 +747,9 @@ foo = function() {
 };
 
 $(function() {
-  return bindClicks();
+  bindClicks();
+  window.bindClicks = bindClicks;
+  return window.mapNewWindows = mapNewWindows;
 });
 
 if (window.dropperParams == null) {
@@ -775,7 +777,7 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
    */
   if (typeof callback !== "function") {
     callback = function(file, result) {
-      var e, ext, fileName, fullFile, fullPath;
+      var e;
       if (typeof result !== "object") {
         console.error("Dropzone returned an error - " + result);
         toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger");
@@ -790,11 +792,9 @@ handleDragDropImage = function(uploadTargetSelector, callback) {
         return false;
       }
       try {
-        fileName = file.name;
-        dropperParams.dropzone.disable();
-        ext = fileName.split(".").pop();
-        fullFile = (md5(fileName)) + "." + ext;
-        fullPath = "" + dropperParams.uploadPath + fullFile;
+        console.info("Server returned the following result:", result);
+        console.info("The script returned the following file information:", file);
+        dropperParams.dropzone.removeAllFiles();
         toastStatusMessage("Upload complete", "success");
       } catch (_error) {
         e = _error;

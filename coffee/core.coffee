@@ -541,3 +541,5 @@ foo = ->
 
 $ ->
   bindClicks()
+  window.bindClicks = bindClicks
+  window.mapNewWindows = mapNewWindows

@@ -18,20 +18,17 @@ postUploadCallback = (file, result) ->
   try
     console.info "Server returned the following result:", result
     console.info "The script returned the following file information:", file
-    fileName = file.name
-    # Disable the selector
-    dropperParams.dropzone.disable()
-    # Now, process the rename and insert it into the file area
-    # Get the MD5 of the original filename
-    ext = fileName.split(".").pop()
-    # MD5.extension is the goal
-    fullFile = "#{md5(fileName)}.#{ext}"
-    fullPath = "#{dropperParams.uploadPath}#{fullFile}"
-    # Insert it into the field
-    d$("#edit-image")
-    .attr("disabled","disabled")
-    .attr("value",fullPath)
-    toastStatusMessage("Upload complete", "success")
+    html = """
+    <div class='message'>
+      <a href="#{result.full_path}" class="newwindow">
+        <img src="#{result.thumb_path}" />
+      </a>
+      <p class="text-muted">Click the thumbnail for a full-sized image (#{file.name})</p>
+    </div>
+    """
+    dropperParams.dropzone.removeAllFiles()
+    $("#chat-region").append(html)
+    mapNewWindows()
   catch e
     console.error("There was a problem with upload post-processing - #{e.message}")
     console.warn("Using",fileName,result)
