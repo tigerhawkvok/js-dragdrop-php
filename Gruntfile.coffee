@@ -28,7 +28,7 @@ module.exports = (grunt) ->
       npm:
         command: ["npm update"].join("&&")
       movesrc:
-        command: ["mv js/c.src.coffee js/maps/c.src.coffee"].join("&&")
+        command: ["mv js/drop-upload.src.coffee js/maps/drop-upload.src.coffee"].join("&&")
     postcss:
       options:
         processors: [
@@ -45,9 +45,9 @@ module.exports = (grunt) ->
       dist:
         options:
           sourceMap:true
-          sourceMapName:"js/maps/c.map"
+          sourceMapName:"js/maps/drop-upload.map"
           sourceMapIncludeSources:true
-          sourceMapIn:"js/maps/c.js.map"
+          sourceMapIn:"js/maps/drop-upload.js.map"
           compress:
             # From https://github.com/mishoo/UglifyJS2#compressor-options
             dead_code: true
@@ -62,7 +62,7 @@ module.exports = (grunt) ->
             sequences: true
             cascade: true
         files:
-          "js/c.min.js":["js/c.js"]
+          "js/drop-upload.min.js":["js/drop-upload.js"]
       minpurl:
         options:
           sourceMap:true
@@ -108,7 +108,7 @@ module.exports = (grunt) ->
           sourceMapDir: "js/maps"
           sourceMap: true
         files:
-          "js/c.js":"coffee/*.coffee"
+          "js/drop-upload.js":"coffee/*.coffee"
     watch:
       scripts:
         files: ["coffee/*.coffee"]
