@@ -84,7 +84,7 @@ module.exports = (grunt) ->
     coffee:
       compile:
         options:
-          bare: true # For release, set false and then debug!
+          bare: false # For release, set false and then debug!
           join: true
           sourceMapDir: "js/maps"
           sourceMap: true

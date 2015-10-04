@@ -544,18 +544,36 @@ $ ->
   window.bindClicks = bindClicks
   window.mapNewWindows = mapNewWindows
 
+###
+# This is the main scripting file to handle the drag and drop uploads.
+#
+# It requires a few dependencies from core.coffee, and the two files
+# are concatenated by the Gruntfile in this repository.
+###
+
+# We want to make sure that the user can define dropperParams early,
+# and not erase their customizations.
 unless window.dropperParams?
   window.dropperParams = new Object()
 # Path to where meta.php lives. This is the file that handles the
 # server-side upload.
 dropperParams.metaPath ?= ""
+# Where are the uploaded images kept?
 dropperParams.uploadPath ?= "uploaded_images/"
+# We require some stuff, most notably Dropzone.
 dropperParams.dependencyPath ?= "bower_components/"
 dropperParams.dropzonePath = "#{dropperParams.dependencyPath}dropzone/dist/min/dropzone.min.js"
-dropperParams.md5Path = "#{dropperParams.dependencyPath}JavaScript-MD5/js/md5.min.js"
+dropperParams.bootstrapPath = "#{dropperParams.dependencyPath}bootstrap/dist/js/bootstrap.min.js"
+## Deprecated
+## dropperParams.md5Path = "#{dropperParams.dependencyPath}JavaScript-MD5/js/md5.min.js"
+# Maximum width of generated thumbnail
 dropperParams.thumbWidth ?= 640
+# Maximum height of generated thumbnail
 dropperParams.thumbHeight ?= 480
+# Should a progress bar be generated and displayed below the upload target?
 dropperParams.showProgress ?= false
+# An array of CSS selectors for targets that can initiate the upload
+# on click. False means no targets take a click.
 dropperParams.clickTargets ?= false
 
 
@@ -591,7 +609,7 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       false
   ## The main script
   # Load dependencies
-  loadJS dropperParams.md5Path
+  loadJS dropperParams.bootstrapPath
   loadJS dropperParams.dropzonePath, ->
     # Dropzone has been loaded!
     # Add the CSS
