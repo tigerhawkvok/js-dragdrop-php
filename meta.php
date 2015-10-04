@@ -78,7 +78,7 @@ function handleUpload() {
     # (eg, image/, audio/, video/ ... )
     switch($mime_class) {
     case "image":
-        return doUploadImage();
+        return doUploadImage($mime);
         break;
     case "audio":
     case "video":
@@ -87,7 +87,7 @@ function handleUpload() {
     }
 }
 
-function doUploadImage() {
+function doUploadImage($passed_mime = null) {
     /***
      * Works with the default $_FILES object and handles image
      * uploads.
@@ -150,6 +150,7 @@ function doUploadImage() {
     $resizeStatus["output"] = getRelativePath($resizeStatus["output"]);
     $uploadStatus["resize_status"] = $resizeStatus;
     $uploadStatus["thumb_path"] = $resizeStatus["output"];
+    $uploadStatus["mime_provided"] = $passed_mime;
     return $uploadStatus;
 }
 
