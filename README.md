@@ -16,8 +16,27 @@ The following optional paramaters may be specified:
 - `dropperParams.showProgress`: Show an extra progress bar beneath the drop target. Default `false`.
 - `dropperParams.clickTargets`: Targets that can be clicked to initiate an upload. An array of CSS selectors. (Default: none)
 
+## Using
+
+To enable the handler, you can do something like what's in [launch-test.coffee](launch-test.coffee):
+
+
+```coffee
+dropTargetSelector="#foobar"
+callback = (file, result) ->
+  # Callback here
+  false
+$ ->
+  window.dropperParams.showProgress = true
+  window.dropperParams.handleDragDropImage(dropTargetSelector, callback)
+```
+
+Running the demo will show some sample outputs.
+
+The most important of these outputs is the JSON result from `meta.php`. It will return an object like this:
+
 ## License
 
 This library is dual-licensed under the MIT and GPLv3 liceneses (as LICENSE and LICENSE-2 in this repository). Feel free to use either for your work, as appropriate.
 
-Please contact the me for any other licences you may want, and we'll work something out.
+Please contact the me for any other licences you may want, and we'll work something out

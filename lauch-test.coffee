@@ -5,6 +5,17 @@
 dropTargetSelector = "#new-message"
 
 postUploadCallback = (file, result) ->
+  ###
+  # A sample callback function for handleDragDropImage
+  #
+  # The "file" object contains information about the uploaded file,
+  # such as name, height, width, size, type, and more. Check the
+  # console logs in the demo for a full output.
+  #
+  # The result object contains the results of the upload. The "status"
+  # key is true or false depending on the status of the upload, and
+  # the other most useful keys will be "full_path" and "thumb_path".
+  ###
   if typeof result isnt "object"
     console.error "Dropzone returned an error - #{result}"
     toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger")
