@@ -73,7 +73,7 @@ function handleUpload() {
     # Look at the MIME prefix
     $mime_types = explode("/",$mime);
     $mime_class = $mime_types[0];
-    
+
     # Now, call the actual uploader function based on the mime class
     # (eg, image/, audio/, video/ ... )
     switch($mime_class) {
@@ -81,10 +81,45 @@ function handleUpload() {
         return doUploadImage($mime);
         break;
     case "audio":
+        return doUploadAudio($mime);
+        break;
     case "video":
     default:
         return array("status"=>false,"error"=>"Unrecognized MIME type "+$mime, "human_error"=>"Unsupported file format");
     }
+}
+
+function doUploadAudio($passed_mime = null) {
+    /***
+     *
+     ***/
+    if(empty($_FILES)) {
+        return array("status"=>false,"error"=>"No files provided","human_error"=>"Please provide a file to upload");
+    }
+    $temp = $_FILES["file"]["tmp_name"];
+    $uploadPath = $_REQUEST["uploadpath"];
+    $savePath = dirname(__FILE__) . "/" . $uploadPath;
+    if(!file_exists($savePath)) {
+        return array(
+            "status" => false,
+            "error" => "Bad path '$savePath'",
+            "human_error" => "There is a server misconfiguration preventing your file from being uploaded"
+        );
+    }
+    $file = $_FILES["file"]["name"];
+    $extension = array_pop(explode(".",$file));
+    $fileName = md5($file.microtime_float());
+    $newFilePath = $fileName . "." . $extension;
+    $fileWritePath = $savePath . $newFilePath;
+    # We want to suppress the warning on move_uploaded_file, or else
+    # it'll return an invalid JSON response
+    error_reporting(0); # Disable this for debugging
+    $status = move_uploaded_file($temp,$fileWritePath);
+    $uploadStatus = array("status"=>$status,"original_file"=>$file,"wrote_file"=>$newFilePath,"full_path"=>getRelativePath($fileWritePath));
+    # Provide a link to a static thumbnail path
+    $uploadStatus["thumb_path"] = "assets/glyphicons-18-music.png";
+    $uploadStatus["mime_provided"] = $passed_mime;
+    return $uploadStatus;
 }
 
 function doUploadImage($passed_mime = null) {

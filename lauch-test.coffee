@@ -29,12 +29,17 @@ postUploadCallback = (file, result) ->
   try
     console.info "Server returned the following result:", result
     console.info "The script returned the following file information:", file
+    mediaType = result.mime_provided.split("/")[0]
+    mediaExplanation = switch mediaType
+      when "image" then "a full-sized image"
+      when "audio" then "the audio file"
+      when "video" then "the video"
     html = """
     <div class='message'>
       <a href="#{result.full_path}" class="newwindow">
         <img src="#{result.thumb_path}" />
       </a>
-      <p class="text-muted">Click the thumbnail for a full-sized image (#{file.name})</p>
+      <p class="text-muted">Click the thumbnail for #{mediaExplanation} (#{file.name})</p>
     </div>
     """
     dropperParams.dropzone.removeAllFiles()
