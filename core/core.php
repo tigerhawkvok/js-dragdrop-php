@@ -207,9 +207,7 @@ class ImageFunctions {
             $tn_height = $max_height;
         }
 
-        /* Caching additions by Trent Davies */
-        // first check cache
-        // cache must be world-readable
+
         $resized = 'cache/'.$tn_width.'x'.$tn_height.'-'.$filename;
         $imageModified = @filemtime($image);
         $thumbModified = @filemtime($resized);
@@ -244,18 +242,6 @@ class ImageFunctions {
 
         // copy resized image to new canvas
         imagecopyresampled ($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
-
-        /* Sharpening adddition by Mike Harding */
-        // sharpen the image (only available in PHP5.1)
-        /*if (function_exists("imageconvolution")) {
-          $matrix = array(    array( -1, -1, -1 ),
-          array( -1, 32, -1 ),
-          array( -1, -1, -1 ) );
-          $divisor = 24;
-          $offset = 0;
-
-          imageconvolution($dst, $matrix, $divisor, $offset);
-          }*/
 
         // send the header and new image
         if($ext=='jpg')
@@ -329,9 +315,6 @@ class ImageFunctions {
             $tn_height = $max_height;
         }
 
-        /* Caching additions by Trent Davies */
-        // first check cache
-        // cache must be world-readable
         $resized = 'cache/'.$tn_width.'x'.$tn_height.'-'.$filename;
         $imageModified = @filemtime($image);
         $thumbModified = @filemtime($resized);
@@ -367,17 +350,6 @@ class ImageFunctions {
         // copy resized image to new canvas
         imagecopyresampled ($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
 
-        /* Sharpening adddition by Mike Harding */
-        // sharpen the image (only available in PHP5.1)
-        /*if (function_exists("imageconvolution")) {
-          $matrix = array(    array( -1, -1, -1 ),
-          array( -1, 32, -1 ),
-          array( -1, -1, -1 ) );
-          $divisor = 24;
-          $offset = 0;
-
-          imageconvolution($dst, $matrix, $divisor, $offset);
-          }*/
 
         // send the header and new image
         if($ext=='jpg')
