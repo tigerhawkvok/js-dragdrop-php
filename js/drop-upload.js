@@ -857,7 +857,7 @@
         return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
       };
       dropzoneConfig = {
-        url: dropperParams.metaPath + "meta.php?do=upload_image&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumb_height,
+        url: dropperParams.metaPath + "meta.php?do=upload_file&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumb_height,
         acceptedFiles: dropperParams.mimeTypes,
         autoProcessQueue: true,
         maxFiles: 1,

@@ -54,8 +54,37 @@ function getRelativePath($fullPath) {
      * @param fullPath the full path to a file, that is in a
      * descendant directory of this one.
      ***/
-    
+
     return str_replace(dirname(__FILE__) . "/", "", $fullPath);
+}
+
+function handleUpload() {
+    /***
+     * Determine the type of file upload handler that needs to be
+     * used, then pass things along accordingly.
+     ***/
+    if(empty($_FILES)) {
+        return array("status"=>false,"error"=>"No files provided","human_error"=>"Please provide a file to upload");
+    }
+    $temp = $_FILES["file"]["tmp_name"];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $temp);
+    finfo_close($finfo);
+    # Look at the MIME prefix
+    $mime_types = explode("/",$mime);
+    $mime_class = $mime_types[0];
+    
+    # Now, call the actual uploader function based on the mime class
+    # (eg, image/, audio/, video/ ... )
+    switch($mime_class) {
+    case "image":
+        return doUploadImage();
+        break;
+    case "audio":
+    case "video":
+    default:
+        return array("status"=>false,"error"=>"Unrecognized MIME type "+$mime, "human_error"=>"Unsupported file format");
+    }
 }
 
 function doUploadImage() {
@@ -121,7 +150,7 @@ function doUploadImage() {
     $resizeStatus["output"] = getRelativePath($resizeStatus["output"]);
     $uploadStatus["resize_status"] = $resizeStatus;
     $uploadStatus["thumb_path"] = $resizeStatus["output"];
-    return $uploadStatus;   
+    return $uploadStatus;
 }
 
 
@@ -131,6 +160,9 @@ $do = isset($_REQUEST['do']) ? strtolower($_REQUEST['do']):null;
 switch($do)
 {
 # Extend other switches in here as cases ...
+case "upload_file":
+    returnAjax(handleUpload());
+    break;
 case "upload_image":
     returnAjax(doUploadImage());
     break;
