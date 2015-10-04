@@ -35,6 +35,23 @@ Running the demo will show some sample outputs.
 
 The most important of these outputs is the JSON result from `meta.php`. It will return an object like this:
 
+```javascript
+{
+    "status": true, // Boolean true or false
+    "original_file": "foobar.png", // The original file name
+    "full_path": "path/to/MD5HASH.png", // A path to the uploaded file
+    "thumb_path": "path/to/MD5HASH-thumb.png", // A path to the thumbnail of the uploaded file
+    "resize_status": {
+        "output": "path/to/MD5HASH-thumb.png", // A path to the thumbnail of the uploaded file. Same as thumb_path
+        "output_size": "640 x 480", // The resized dimensions of the thumbnail
+        "status": true // the status of the resize attempt
+    },
+    "error": "Could not write directory", // Developer error for the upload
+    "human_error": "Please try again", // A friendly error for the user
+    "wrote_file": "MD5HASH.png" // The bare filename of the uploaded image
+}
+```
+
 ## License
 
 This library is dual-licensed under the MIT and GPLv3 liceneses (as LICENSE and LICENSE-2 in this repository). Feel free to use either for your work, as appropriate.
