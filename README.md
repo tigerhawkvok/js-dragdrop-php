@@ -18,8 +18,15 @@ The following optional paramaters may be specified:
 
 ## Using
 
-To enable the handler, you can do something like what's in [launch-test.coffee](launch-test.coffee):
+Adding the function in is simple. **It has JQuery as a dependency**, but other than that simply run
 
+```html
+<script type="text/javascript" src="js/drop-upload.min.js"></script>
+```
+
+to load the script.
+
+To configure it, you can do something like what's in [launch-test.coffee](launch-test.coffee):
 
 ```coffee
 dropTargetSelector="#foobar"
@@ -30,6 +37,8 @@ $ ->
   window.dropperParams.showProgress = true
   window.dropperParams.handleDragDropImage(dropTargetSelector, callback)
 ```
+
+It's important to have the code run on the `onready` handler or similar, as the function will load its own dependencies, keeping the actual declaration slim.
 
 Running the demo will show some sample outputs.
 
