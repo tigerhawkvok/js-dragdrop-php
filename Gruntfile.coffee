@@ -92,7 +92,7 @@ module.exports = (grunt) ->
           "js/drop-upload.js":"coffee/*.coffee"
     phpcsfixer:
       scripts:
-        dir: ["./"]
+        dir: ["./", "core/"]
       options:
         ignoreExitCode: true
         verbose: true

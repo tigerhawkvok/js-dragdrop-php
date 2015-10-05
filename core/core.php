@@ -1,4 +1,5 @@
 <?php
+
 /***
  * Common Core Helper Functions
  *
@@ -7,29 +8,24 @@
  * @license MIT / GPL-3 dual-license
  ***/
 
-
-if(!function_exists('microtime_float'))
-  {
+if (!function_exists('microtime_float')) {
     function microtime_float()
     {
         /***
          * Version independent timecode function
          ***/
-      if(version_compare(phpversion(), '5.0.0', '<'))
-        {
-          list($usec, $sec) = explode(" ", microtime());
-          return ((float)$usec + (float)$sec);
-        }
-      else
-        {
-          return microtime(true);
-        }
-    }
-  }
+      if (version_compare(phpversion(), '5.0.0', '<')) {
+          list($usec, $sec) = explode(' ', microtime());
 
-if(!function_exists('dirListPHP'))
-  {
-    function dirListPHP ($directory,$filter=null,$extension=false,$debug=false)
+          return ((float) $usec + (float) $sec);
+      } else {
+          return microtime(true);
+      }
+    }
+}
+
+if (!function_exists('dirListPHP')) {
+    function dirListPHP($directory, $filter = null, $extension = false, $debug = false)
     {
         /***
          * Get a list of all the files in a given directory.
@@ -42,69 +38,74 @@ if(!function_exists('dirListPHP'))
          *   script is finding.
          ***/
       $results = array();
-      $handler = @opendir($directory);
-      if($handler===false) return false;
-      while ($file = readdir($handler))
-        {
-          if ($file != '.' && $file != '..' )
-            {
-              if($filter!=null)
-                {
-                  if($extension!==false)
-                    {
-                      $parts=explode(".",basename($file));
-                      $size=sizeof($parts);
-                      $ext_file=array_pop($parts);
-                      $filename=implode(".",$parts);
-                      if($debug) echo "Looking at extension '$extension' and '$ext_file' for $file and $filename\n";
-                      if($ext_file==$extension)
-                        {
-                          if(empty($filter)) $results[]=$file;
-                          else if(strpos(strtolower($filename),strtolower($filter))!==false) $results[]=$file;
+        $handler = @opendir($directory);
+        if ($handler === false) {
+            return false;
+        }
+        while ($file = readdir($handler)) {
+            if ($file != '.' && $file != '..') {
+                if ($filter != null) {
+                    if ($extension !== false) {
+                        $parts = explode('.', basename($file));
+                        $size = sizeof($parts);
+                        $ext_file = array_pop($parts);
+                        $filename = implode('.', $parts);
+                        if ($debug) {
+                            echo "Looking at extension '$extension' and '$ext_file' for $file and $filename\n";
+                        }
+                        if ($ext_file == $extension) {
+                            if (empty($filter)) {
+                                $results[] = $file;
+                            } elseif (strpos(strtolower($filename), strtolower($filter)) !== false) {
+                                $results[] = $file;
+                            }
+                        }
+                    } elseif (strpos(strtolower($file), strtolower($filter)) !== false) {
+                        $results[] = $file;
+                        if ($debug) {
+                            echo "No extension used\n";
                         }
                     }
-                  else if(strpos(strtolower($file),strtolower($filter))!==false)
-                    {
-                      $results[]=$file;
-                      if($debug) echo "No extension used\n";
+                } else {
+                    $results[] = $file;
+                    if ($debug) {
+                        echo "No filter used \n";
                     }
-                }
-              else
-                {
-                  $results[] = $file;
-                  if($debug) echo "No filter used \n";
                 }
             }
         }
-      closedir($handler);
-      return $results;
+        closedir($handler);
+
+        return $results;
     }
-  }
+}
 
-
-if(!function_exists('encode64'))
-  {
-      /***
+if (!function_exists('encode64')) {
+    /***
        * Wrapper for the PHP functions, with strict encoding fixes on
        * the decode.
        ***/
-    function encode64($data) { return base64_encode($data); }
+    function encode64($data)
+    {
+        return base64_encode($data);
+    }
     function decode64($data)
     {
-      # This is STRICT decoding
+        # This is STRICT decoding
         # Fix a bunch of random problems that can happen with PHP
         $enc = strtr($data, '-_', '+/');
-        $enc = chunk_split(preg_replace('!\015\012|\015|\012!','',$enc));
-        $enc = str_replace(' ','+',$enc);
+        $enc = chunk_split(preg_replace('!\015\012|\015|\012!', '', $enc));
+        $enc = str_replace(' ', '+', $enc);
         # Once we decode and re-encode, does it match?
-      if(@base64_encode(@base64_decode($enc,true))==$enc) return urldecode(@base64_decode($data));
-      return false;
+      if (@base64_encode(@base64_decode($enc, true)) == $enc) {
+          return urldecode(@base64_decode($data));
+      }
+
+        return false;
     }
-  }
+}
 
-
-if(!function_exists('strbool'))
-  {
+if (!function_exists('strbool')) {
     function strbool($bool)
     {
         /***
@@ -114,9 +115,14 @@ if(!function_exists('strbool'))
          * @param boolean $bool
          * @return string
          ***/
-      if(is_string($bool)) $bool=boolstr($bool); // if a string is passed, convert it to a bool
-      if(is_bool($bool)) return $bool ? 'true' : 'false';
-      else return 'non_bool';
+      if (is_string($bool)) {
+          $bool = boolstr($bool);
+      } // if a string is passed, convert it to a bool
+      if (is_bool($bool)) {
+          return $bool ? 'true' : 'false';
+      } else {
+          return 'non_bool';
+      }
     }
     function boolstr($string)
     {
@@ -128,22 +134,28 @@ if(!function_exists('strbool'))
          *   boolean of
          * @return bool
          ***/
-      if(is_bool($string)) return $string;
-      if(is_string($string))
-      {
-        if(preg_match("/[0-1]/",$string)) return intval($string) == 1 ? true:false;
-        return strtolower($string)==='true' ? true:false;
+      if (is_bool($string)) {
+          return $string;
       }
-      if(preg_match("/[0-1]/",$string)) return $string == 1 ? true:false;
-      return false;
-    }
-  }
+        if (is_string($string)) {
+            if (preg_match('/[0-1]/', $string)) {
+                return intval($string) == 1 ? true : false;
+            }
 
-if(!function_exists("do_post_request"))
-  {
+            return strtolower($string) === 'true' ? true : false;
+        }
+        if (preg_match('/[0-1]/', $string)) {
+            return $string == 1 ? true : false;
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('do_post_request')) {
     function do_post_request($url, $data, $optional_headers = null)
     {
-      /***
+        /***
        * Do a POST request
        *
        * @param string $url the destination URL
@@ -153,28 +165,29 @@ if(!function_exists("do_post_request"))
 
       $params = array('http' => array(
         'method' => 'POST',
-        'content' => http_build_query($data)
+        'content' => http_build_query($data),
       ));
-      if ($optional_headers !== null) {
-        $params['http']['header'] = $optional_headers;
-      }
-      $ctx = stream_context_create($params);
+        if ($optional_headers !== null) {
+            $params['http']['header'] = $optional_headers;
+        }
+        $ctx = stream_context_create($params);
       # If url handlers are set,t his whole next part can be file_get_contents($url,false,$ctx)
       $fp = @fopen($url, 'rb', false, $ctx);
-      if (!$fp) {
-        throw new Exception("Problem with $url, $php_errormsg");
-      }
-      $response = @stream_get_contents($fp);
-      if ($response === false) {
-        throw new Exception("Problem reading data from $url, $php_errormsg");
-      }
-      return $response;
-    }
-  }
+        if (!$fp) {
+            throw new Exception("Problem with $url, $php_errormsg");
+        }
+        $response = @stream_get_contents($fp);
+        if ($response === false) {
+            throw new Exception("Problem reading data from $url, $php_errormsg");
+        }
 
-if(!function_exists('deEscape'))
-  {
-    function deEscape($input) {
+        return $response;
+    }
+}
+
+if (!function_exists('deEscape')) {
+    function deEscape($input)
+    {
         /***
          * Remove all escaping from a passed sequence.
          * Helpful for things that may need weird encoding for GET or
@@ -185,11 +198,10 @@ if(!function_exists('deEscape'))
          ***/
       return htmlspecialchars_decode(html_entity_decode(urldecode($input)));
     }
-  }
+}
 
-
-class ImageFunctions {
-
+class ImageFunctions
+{
     /***
      * Image parser library. Taken and adapted from many sources over
      * a number of years.
@@ -220,14 +232,16 @@ class ImageFunctions {
 
     public function __construct($imgUrl = null)
     {
-        $this -> img = $imgUrl;
+        $this->img = $imgUrl;
     }
 
-    private static function notfound() {
-        throw new Exception("Not Found Exception");
+    private static function notfound()
+    {
+        throw new Exception('Not Found Exception');
     }
 
-    public static function randomRotate($min,$max) {
+    public static function randomRotate($min, $max)
+    {
         /***
          * Return a random CSS rotation transformation, in the
          * positive or negative direction. If the random angle is
@@ -240,13 +254,16 @@ class ImageFunctions {
          * @return string CSS to be applied to the image, with
          *   appropriate vendor prefixes.
          ***/
-        $angle=rand($min,$max);
-        if(rand(0,100)%2)$angle="-".$angle;
-        return "transform:rotate(".$angle."deg);-moz-transform:rotate(".$angle."deg);-webkit-transform:rotate(".$angle."deg);";
+        $angle = rand($min, $max);
+        if (rand(0, 100) % 2) {
+            $angle = '-'.$angle;
+        }
+
+        return 'transform:rotate('.$angle.'deg);-moz-transform:rotate('.$angle.'deg);-webkit-transform:rotate('.$angle.'deg);';
     }
 
-
-    public static function randomImage($dir = "assets/images", $extension = "jpg") {
+    public static function randomImage($dir = 'assets/images', $extension = 'jpg')
+    {
         /***
          * Fetch a random image from a directory
          *
@@ -257,13 +274,16 @@ class ImageFunctions {
          * @return bool|string A path to a random image matching those
          *   criteria, or false if no matching items found.
          ***/
-        $images=dirListPHP($dir,'.' . $extension);
-        if($images===false) return false;
-        $item=rand(0,count($images)-1);
-        return $dir . '/' . $images[$item];
+        $images = dirListPHP($dir, '.'.$extension);
+        if ($images === false) {
+            return false;
+        }
+        $item = rand(0, count($images) - 1);
+
+        return $dir.'/'.$images[$item];
     }
 
-    public static function staticResizeImage($imgfile,$output,$max_width=NULL,$max_height=NULL)
+    public static function staticResizeImage($imgfile, $output, $max_width = null, $max_height = null)
     {
         /***
          * Resize an image to parameters.
@@ -283,37 +303,44 @@ class ImageFunctions {
          *  ouput: Path to resized image
          *  dimensions: Human-friendly new dimensions
          ***/
-        if(!is_numeric($max_height)) $max_height=1000;
-        if(!is_numeric($max_width)) $max_width=2000;
-        if (function_exists(get_magic_quotes_gpc) && get_magic_quotes_gpc())
-        {
-            $image = stripslashes( $imgfile );
+        if (!is_numeric($max_height)) {
+            $max_height = 1000;
         }
-        else  $image = $imgfile;
+        if (!is_numeric($max_width)) {
+            $max_width = 2000;
+        }
+        if (function_exists(get_magic_quotes_gpc) && get_magic_quotes_gpc()) {
+            $image = stripslashes($imgfile);
+        } else {
+            $image = $imgfile;
+        }
 
         if (strrchr($image, '/')) {
             $filename = substr(strrchr($image, '/'), 1); # remove folder references
-        }
-        else {
+        } else {
             $filename = $image;
         }
 
-        if(!file_exists($image)) return array("status"=>false,"error"=>"File does not exist","image_path"=>$image);
+        if (!file_exists($image)) {
+            return array('status' => false,'error' => 'File does not exist','image_path' => $image);
+        }
 
         $size = getimagesize($image);
         $width = $size[0];
         $height = $size[1];
-        if($width == 0 ) return array("status"=>false, "error"=>"Unable to compute image dimensions","image_path"=>$image);
+        if ($width == 0) {
+            return array('status' => false, 'error' => 'Unable to compute image dimensions','image_path' => $image);
+        }
         # get the ratio needed
         $x_ratio = $max_width / $width;
         $y_ratio = $max_height / $height;
 
         # if image already meets criteria, load current values in
         # if not, use ratios to load new size info
-        if (($width <= $max_width) && ($height <= $max_height) ) {
+        if (($width <= $max_width) && ($height <= $max_height)) {
             $tn_width = $width;
             $tn_height = $height;
-        } else if (($x_ratio * $height) < $max_height) {
+        } elseif (($x_ratio * $height) < $max_height) {
             $tn_height = ceil($x_ratio * $height);
             $tn_width = $max_width;
         } else {
@@ -321,11 +348,9 @@ class ImageFunctions {
             $tn_height = $max_height;
         }
 
-
         $resized = 'cache/'.$tn_width.'x'.$tn_height.'-'.$filename;
         $imageModified = @filemtime($image);
         $thumbModified = @filemtime($resized);
-
 
         # read image
         $ext = strtolower(substr(strrchr($image, '.'), 1)); # get the file extension
@@ -350,46 +375,36 @@ class ImageFunctions {
         }
 
         # set up canvas
-        $dst = imagecreatetruecolor($tn_width,$tn_height);
+        $dst = imagecreatetruecolor($tn_width, $tn_height);
 
-        imageantialias ($dst, true);
+        imageantialias($dst, true);
 
         # copy resized image to new canvas
-        imagecopyresampled ($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
 
         # send the header and new image
-        if($ext=='jpg')
-        {
+        if ($ext == 'jpg') {
             $status = imagejpeg($dst, $output, 75);
-        }
-        else if ($ext=='png')
-        {
+        } elseif ($ext == 'png') {
             $status = imagepng($dst, $output, 9);
-        }
-        else if ($ext=='gif')
-        {
+        } elseif ($ext == 'gif') {
             $status = imagegif($dst, $output);
-        }
-        else if ($ext == "bmp")
-        {
+        } elseif ($ext == 'bmp') {
             $status = imagewbmp($dst, $output);
-        }
-        else if ($ext == "webp")
-        {
+        } elseif ($ext == 'webp') {
             $status = imagewebp($dst, $output);
-        }
-        else
-        {
-            return array("status"=>false,"error"=>"Illegal extension","image_path"=>$image, "extension"=>$ext);
+        } else {
+            return array('status' => false,'error' => 'Illegal extension','image_path' => $image, 'extension' => $ext);
         }
 
         # clear out the resources
         imagedestroy($src);
         imagedestroy($dst);
-        return array("status"=>$status, "output"=>$output, "output_size"=>"$tn_width X $tn_height");
+
+        return array('status' => $status, 'output' => $output, 'output_size' => "$tn_width X $tn_height");
     }
 
-    public function resizeImage($output,$max_width=NULL,$max_height=NULL)
+    public function resizeImage($output, $max_width = null, $max_height = null)
     {
         /***
          * Resize an image to parameters.
@@ -408,37 +423,44 @@ class ImageFunctions {
          *  ouput: Path to resized image
          *  dimensions: Human-friendly new dimensions
          ***/
-        if(!is_numeric($max_height)) $max_height=1000;
-        if(!is_numeric($max_width)) $max_width=2000;
-        if (function_exists(get_magic_quotes_gpc) && get_magic_quotes_gpc())
-        {
-            $image = stripslashes( $this->img );
+        if (!is_numeric($max_height)) {
+            $max_height = 1000;
         }
-        else  $image = $this->img;
+        if (!is_numeric($max_width)) {
+            $max_width = 2000;
+        }
+        if (function_exists(get_magic_quotes_gpc) && get_magic_quotes_gpc()) {
+            $image = stripslashes($this->img);
+        } else {
+            $image = $this->img;
+        }
 
         if (strrchr($image, '/')) {
             $filename = substr(strrchr($image, '/'), 1); # remove folder references
-        }
-        else {
+        } else {
             $filename = $image;
         }
 
-        if(!file_exists($image)) return array("status"=>false,"error"=>"File does not exist","image_path"=>$image);
+        if (!file_exists($image)) {
+            return array('status' => false,'error' => 'File does not exist','image_path' => $image);
+        }
 
         $size = getimagesize($image);
         $width = $size[0];
         $height = $size[1];
-        if($width == 0 ) return array("status"=>false, "error"=>"Unable to compute image dimensions","image_path"=>$image);
+        if ($width == 0) {
+            return array('status' => false, 'error' => 'Unable to compute image dimensions','image_path' => $image);
+        }
         # get the ratio needed
         $x_ratio = $max_width / $width;
         $y_ratio = $max_height / $height;
 
         # if image already meets criteria, load current values in
         # if not, use ratios to load new size info
-        if (($width <= $max_width) && ($height <= $max_height) ) {
+        if (($width <= $max_width) && ($height <= $max_height)) {
             $tn_width = $width;
             $tn_height = $height;
-        } else if (($x_ratio * $height) < $max_height) {
+        } elseif (($x_ratio * $height) < $max_height) {
             $tn_height = ceil($x_ratio * $height);
             $tn_width = $max_width;
         } else {
@@ -449,7 +471,6 @@ class ImageFunctions {
         $resized = 'cache/'.$tn_width.'x'.$tn_height.'-'.$filename;
         $imageModified = @filemtime($image);
         $thumbModified = @filemtime($resized);
-
 
         # read image
         $ext = strtolower(substr(strrchr($image, '.'), 1)); # get the file extension
@@ -474,46 +495,32 @@ class ImageFunctions {
         }
 
         # set up canvas
-        $dst = imagecreatetruecolor($tn_width,$tn_height);
+        $dst = imagecreatetruecolor($tn_width, $tn_height);
 
-        imageantialias ($dst, true);
+        imageantialias($dst, true);
 
         # copy resized image to new canvas
-        imagecopyresampled ($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
-
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
 
         # send the header and new image
-        if($ext=='jpg')
-        {
+        if ($ext == 'jpg') {
             $status = imagejpeg($dst, $output, 75);
-        }
-        else if ($ext=='png')
-        {
+        } elseif ($ext == 'png') {
             $status = imagepng($dst, $output, 9);
-        }
-        else if ($ext=='gif')
-        {
+        } elseif ($ext == 'gif') {
             $status = imagegif($dst, $output);
-        }
-        else if ($ext == "bmp")
-        {
+        } elseif ($ext == 'bmp') {
             $status = imagewbmp($dst, $output);
-        }
-        else if ($ext == "webp")
-        {
+        } elseif ($ext == 'webp') {
             $status = imagewebp($dst, $output);
-        }
-        else
-        {
-            return array("status"=>false,"error"=>"Illegal extension","image_path"=>$image, "extension"=>$ext);
+        } else {
+            return array('status' => false,'error' => 'Illegal extension','image_path' => $image, 'extension' => $ext);
         }
 
         # clear out the resources
         imagedestroy($src);
         imagedestroy($dst);
-        return array("status"=>$status, "output"=>$output, "output_size"=>"$tn_width X $tn_height");
+
+        return array('status' => $status, 'output' => $output, 'output_size' => "$tn_width X $tn_height");
     }
-
 }
-
-?>
