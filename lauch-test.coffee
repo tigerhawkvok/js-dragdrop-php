@@ -30,18 +30,49 @@ postUploadCallback = (file, result) ->
     console.info "Server returned the following result:", result
     console.info "The script returned the following file information:", file
     mediaType = result.mime_provided.split("/")[0]
-    mediaExplanation = switch mediaType
-      when "image" then "a full-sized image"
-      when "audio" then "the audio file"
-      when "video" then "the video"
-    html = """
-    <div class='message'>
-      <a href="#{result.full_path}" class="newwindow">
-        <img src="#{result.thumb_path}" />
-      </a>
-      <p class="text-muted">Click the thumbnail for #{mediaExplanation} (#{file.name})</p>
-    </div>
-    """
+
+    html = switch mediaType
+      when "image" then """
+        <div class='message-media'>
+          <a href="#{result.full_path}" class="newwindow">
+            <img src="#{result.thumb_path}" />
+          </a>
+          <p class="text-muted">Click the thumbnail for a full-sized image (#{file.name})</p>
+        </div>
+        """
+      when "audio" then """
+      <div class="message-media">
+        <audio src=#{result.full_path} controls preload="auto">
+          <img src="#{result.thumb_path}" alt="Audio Thumbnail" class="img-responsive" />
+          <p>
+            Your browser doesn't support the HTML5 <code>audio</code> element.
+            Please download the file below.
+          </p>
+        </audio>
+        <p class="text-muted">
+          (<a href="#{result.full_path}" class="newwindow" download="#{file.name}">
+            Original Media
+          </a>)
+        </p>
+      </div>
+      """
+      when "video" then """
+      <div class="message-media">
+        <video src=#{result.full_path} controls preload="auto">
+          <img src="#{result.thumb_path}" alt="Audio Thumbnail" class="img-responsive" />
+          <p>
+            Your browser doesn't support the HTML5 <code>video</code> element.
+            Please download the file below.
+          </p>
+        </video>
+        <p class="text-muted">
+          (<a href="#{result.full_path}" class="newwindow" download="#{file.name}">
+            Original Media
+          </a>)
+        </p>
+      </div>
+      """
+
     dropperParams.dropzone.removeAllFiles()
     $("#chat-region").append(html)
     mapNewWindows()
