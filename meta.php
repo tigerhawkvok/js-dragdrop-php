@@ -127,6 +127,17 @@ function doUploadVideo($passed_mime = null) {
     $uploadStatus = array("status"=>$status,"original_file"=>$file,"wrote_file"=>$newFilePath,"full_path"=>getRelativePath($fileWritePath));
     /***********
      * NEED THUMBNAIL GENERATION HERE
+     * All indications are it needs something like FFMPEG, but it is
+     * build-specific: 
+     * http://ffmpeg-php.sourceforge.net/
+     *
+     * Something like
+     *
+     * shell_exec("ffmpeg -i $VIDEO_PATH -deinterlace -an -ss 1 -t
+     *   00:00:01 -r 1 -y -vcodec mjpeg -f mjpeg $THUMBNAIL_PATH 2>&1");
+     *
+     * *should* work, but it's a bit dicey to run a direct shell
+     * command ...
      ***********/
     $uploadStatus["thumb_path"] = "";
     $uploadStatus["mime_provided"] = $passed_mime;
