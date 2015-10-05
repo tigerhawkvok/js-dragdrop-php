@@ -1,4 +1,14 @@
 <?php
+/***
+ * Helper Handler for handling things like uploads, file time stamps,
+ * and other non-mission/api critical tasks.
+ *
+ * @author Philip Kahn | https://github.com/tigerhawkvok
+ * @copyright (c) 2015 Velociraptor Systems LLC
+ * @license MIT / GPL-3 dual-license
+ ***/
+
+# We require the functions living in core.php
 require_once(dirname(__FILE__)."/core/core.php");
 
 $start_script_timer = microtime_float();
@@ -29,7 +39,8 @@ if(!function_exists('elapsed'))
 function returnAjax($data)
 {
     /***
-     * Return the data as a JSON object
+     * Return the data as a JSON object. This function, when called,
+     * will exit the script.
      *
      * @param array $data
      *
@@ -57,6 +68,7 @@ function getRelativePath($fullPath) {
 
     return str_replace(dirname(__FILE__) . "/", "", $fullPath);
 }
+
 
 function handleUpload() {
     /***

@@ -63,6 +63,18 @@ The most important of these outputs is the JSON result from `meta.php`. It will 
 }
 ```
 
+## Compiling
+
+The javascript is all originally written with [CoffeeScript](http://coffeescript.org/), then compiled via [Grunt](http://gruntjs.com/). Similarly, the CSS is all written with [Less](http://lesscss.org/). I strongly suggest you make your edits in CoffeeScript then run `grunt qbuild`.
+
+Before any of this will work, you'll need to have Node installed and run
+
+`npm install`
+
+from the repository root to get all your dependencies installed.
+
+The callback used in the demo lives in `launch-test.coffee`.
+
 ## License
 
 This library is dual-licensed under the MIT and GPLv3 liceneses (as LICENSE and LICENSE-2 in this repository). Feel free to use either for your work, as appropriate.

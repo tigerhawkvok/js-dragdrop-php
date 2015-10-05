@@ -1,4 +1,12 @@
 <?php
+/***
+ * Common Core Helper Functions
+ *
+ * @author Philip Kahn | https://github.com/tigerhawkvok
+ * @copyright (c) 2006-2015 Velociraptor Systems LLC
+ * @license MIT / GPL-3 dual-license
+ ***/
+
 
 if(!function_exists('microtime_float'))
   {
