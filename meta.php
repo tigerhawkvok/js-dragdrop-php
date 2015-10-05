@@ -94,6 +94,13 @@ function handleUpload() {
 function doUploadVideo($passed_mime = null) {
     /***
      *
+     * Video upload handler. Right now, just basic upload handling.
+     *
+     * @todo Thumbnail generation to return for the client argument thumb_path
+     *
+     * It takes one optional function argument
+     *
+     * @param passed_mime The mime type of the file (to be passed to client)
      ***/
     if(empty($_FILES)) {
         return array("status"=>false,"error"=>"No files provided","human_error"=>"Please provide a file to upload");
@@ -130,6 +137,13 @@ function doUploadVideo($passed_mime = null) {
 function doUploadAudio($passed_mime = null) {
     /***
      *
+     * Audio file upload handling.
+     * Largely basic uploading, but also returns a Glyphicon music
+     * icon as a thumbnail icon.
+     *
+     * It takes one optional function argument
+     *
+     * @param passed_mime The mime type of the file (to be passed to client)
      ***/
     if(empty($_FILES)) {
         return array("status"=>false,"error"=>"No files provided","human_error"=>"Please provide a file to upload");
@@ -166,6 +180,10 @@ function doUploadImage($passed_mime = null) {
      * uploads.
      *
      * It then creates a thumbnail for easy display.
+     *
+     * It takes one optional function argument
+     *
+     * @param passed_mime The mime type of the file (to be passed to client)
      *
      * It has the following optional parameters, that should be
      * provided in the POST / GET request:
@@ -228,8 +246,15 @@ function doUploadImage($passed_mime = null) {
 }
 
 
+/***************
+ * Actual script
+ ***************/
+
+
 if(isset($_SERVER['QUERY_STRING'])) parse_str($_SERVER['QUERY_STRING'],$_REQUEST);
 $do = isset($_REQUEST['do']) ? strtolower($_REQUEST['do']):null;
+
+# Check the cases ....
 
 switch($do)
 {
