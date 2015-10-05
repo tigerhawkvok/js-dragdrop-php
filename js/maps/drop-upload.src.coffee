@@ -571,10 +571,12 @@ dropperParams.thumbWidth ?= 640
 # Maximum height of generated thumbnail
 dropperParams.thumbHeight ?= 480
 # Should a progress bar be generated and displayed below the upload target?
-dropperParams.showProgress ?= false
+dropperParams.showProgress ?= true
 # An array of CSS selectors for targets that can initiate the upload
 # on click. False means no targets take a click.
 dropperParams.clickTargets ?= false
+# Mime types
+dropperParams.mimeTypes ?= "image/*,video/mp4,video/3gpp,audio/*"
 
 
 handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
@@ -627,8 +629,8 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       .css("border","")
       d$("#{uploadTargetSelector} .dz-message span").text(defaultText)
     dropzoneConfig =
-      url: "#{dropperParams.metaPath}meta.php?do=upload_image&uploadpath=#{dropperParams.uploadPath}&thumb_width=#{dropperParams.thumbWidth}&thumb_height=#{dropperParams.thumb_height}"
-      acceptedFiles: "image/*"
+      url: "#{dropperParams.metaPath}meta.php?do=upload_file&uploadpath=#{dropperParams.uploadPath}&thumb_width=#{dropperParams.thumbWidth}&thumb_height=#{dropperParams.thumb_height}"
+      acceptedFiles: dropperParams.mimeTypes
       autoProcessQueue: true
       maxFiles: 1
       dictDefaultMessage: defaultText

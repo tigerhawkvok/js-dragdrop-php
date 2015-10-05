@@ -790,11 +790,15 @@
   }
 
   if (dropperParams.showProgress == null) {
-    dropperParams.showProgress = false;
+    dropperParams.showProgress = true;
   }
 
   if (dropperParams.clickTargets == null) {
     dropperParams.clickTargets = false;
+  }
+
+  if (dropperParams.mimeTypes == null) {
+    dropperParams.mimeTypes = "image/*,video/mp4,video/3gpp,audio/*";
   }
 
   handleDragDropImage = function(uploadTargetSelector, callback) {
@@ -853,8 +857,8 @@
         return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
       };
       dropzoneConfig = {
-        url: dropperParams.metaPath + "meta.php?do=upload_image&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumb_height,
-        acceptedFiles: "image/*",
+        url: dropperParams.metaPath + "meta.php?do=upload_file&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumb_height,
+        acceptedFiles: dropperParams.mimeTypes,
         autoProcessQueue: true,
         maxFiles: 1,
         dictDefaultMessage: defaultText,

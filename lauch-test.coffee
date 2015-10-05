@@ -16,6 +16,8 @@ postUploadCallback = (file, result) ->
   # key is true or false depending on the status of the upload, and
   # the other most useful keys will be "full_path" and "thumb_path".
   ###
+  # Clear out the file uploader
+  window.dropperParams.dropzone.removeAllFiles()
   if typeof result isnt "object"
     console.error "Dropzone returned an error - #{result}"
     toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger")
@@ -29,15 +31,49 @@ postUploadCallback = (file, result) ->
   try
     console.info "Server returned the following result:", result
     console.info "The script returned the following file information:", file
-    html = """
-    <div class='message'>
-      <a href="#{result.full_path}" class="newwindow">
-        <img src="#{result.thumb_path}" />
-      </a>
-      <p class="text-muted">Click the thumbnail for a full-sized image (#{file.name})</p>
-    </div>
-    """
-    dropperParams.dropzone.removeAllFiles()
+    mediaType = result.mime_provided.split("/")[0]
+
+    html = switch mediaType
+      when "image" then """
+        <div class='message-media'>
+          <a href="#{result.full_path}" class="newwindow">
+            <img src="#{result.thumb_path}" />
+          </a>
+          <p class="text-muted">Click the thumbnail for a full-sized image (#{file.name})</p>
+        </div>
+        """
+      when "audio" then """
+      <div class="message-media">
+        <audio src=#{result.full_path} controls preload="auto">
+          <img src="#{result.thumb_path}" alt="Audio Thumbnail" class="img-responsive" />
+          <p>
+            Your browser doesn't support the HTML5 <code>audio</code> element.
+            Please download the file below.
+          </p>
+        </audio>
+        <p class="text-muted">
+          (<a href="#{result.full_path}" class="newwindow" download="#{file.name}">
+            Original Media
+          </a>)
+        </p>
+      </div>
+      """
+      when "video" then """
+      <div class="message-media">
+        <video src=#{result.full_path} controls preload="auto">
+          <img src="#{result.thumb_path}" alt="Audio Thumbnail" class="img-responsive" />
+          <p>
+            Your browser doesn't support the HTML5 <code>video</code> element.
+            Please download the file below.
+          </p>
+        </video>
+        <p class="text-muted">
+          (<a href="#{result.full_path}" class="newwindow" download="#{file.name}">
+            Original Media
+          </a>)
+        </p>
+      </div>
+      """
     $("#chat-region").append(html)
     mapNewWindows()
   catch e

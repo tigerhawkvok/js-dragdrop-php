@@ -15,6 +15,8 @@ The following optional paramaters may be specified:
 - `dropperParams.dependencyPath`: The path to the dependencies of the library. Defaults to `bower_components/`.
 - `dropperParams.showProgress`: Show an extra progress bar beneath the drop target. Default `false`.
 - `dropperParams.clickTargets`: Targets that can be clicked to initiate an upload. An array of CSS selectors. (Default: none)
+- `dropperParams.mimeTypes`: Accepted mime types, comma-seperated. Defaults to `"image/*,video/mp4,video/3gpp,audio/*"`
+
 
 ## Using
 

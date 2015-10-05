@@ -24,7 +24,20 @@
       dropTargetSelector = "#new-message";
 
       postUploadCallback = function(file, result) {
-      var e, error, html;
+
+      /*
+      * A sample callback function for handleDragDropImage
+      *
+      * The "file" object contains information about the uploaded file,
+      * such as name, height, width, size, type, and more. Check the
+      * console logs in the demo for a full output.
+      *
+      * The result object contains the results of the upload. The "status"
+      * key is true or false depending on the status of the upload, and
+      * the other most useful keys will be "full_path" and "thumb_path".
+      */
+      var e, error, html, mediaType;
+      window.dropperParams.dropzone.removeAllFiles();
       if (typeof result !== "object") {
       console.error("Dropzone returned an error - " + result);
       toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger");
@@ -41,8 +54,17 @@
       try {
       console.info("Server returned the following result:", result);
       console.info("The script returned the following file information:", file);
-      html = "<div class='message'>\n  <a href=\"" + result.full_path + "\" class=\"newwindow\">\n    <img src=\"" + result.thumb_path + "\" />\n  </a>\n  <p class=\"text-muted\">Click the thumbnail for a full-sized image (" + file.name + ")</p>\n</div>";
-      dropperParams.dropzone.removeAllFiles();
+      mediaType = result.mime_provided.split("/")[0];
+      html = (function() {
+      switch (mediaType) {
+      case "image":
+      return "<div class='message-media'>\n  <a href=\"" + result.full_path + "\" class=\"newwindow\">\n    <img src=\"" + result.thumb_path + "\" />\n  </a>\n  <p class=\"text-muted\">Click the thumbnail for a full-sized image (" + file.name + ")</p>\n</div>";
+      case "audio":
+      return "<div class=\"message-media\">\n  <audio src=" + result.full_path + " controls preload=\"auto\">\n    <img src=\"" + result.thumb_path + "\" alt=\"Audio Thumbnail\" class=\"img-responsive\" />\n    <p>\n      Your browser doesn't support the HTML5 <code>audio</code> element.\n      Please download the file below.\n    </p>\n  </audio>\n  <p class=\"text-muted\">\n    (<a href=\"" + result.full_path + "\" class=\"newwindow\" download=\"" + file.name + "\">\n      Original Media\n    </a>)\n  </p>\n</div>";
+      case "video":
+      return "<div class=\"message-media\">\n  <video src=" + result.full_path + " controls preload=\"auto\">\n    <img src=\"" + result.thumb_path + "\" alt=\"Audio Thumbnail\" class=\"img-responsive\" />\n    <p>\n      Your browser doesn't support the HTML5 <code>video</code> element.\n      Please download the file below.\n    </p>\n  </video>\n  <p class=\"text-muted\">\n    (<a href=\"" + result.full_path + "\" class=\"newwindow\" download=\"" + file.name + "\">\n      Original Media\n    </a>)\n  </p>\n</div>";
+      }
+      })();
       $("#chat-region").append(html);
       mapNewWindows();
       } catch (error) {
@@ -67,7 +89,7 @@
   </head>
   <body class="container">
     <h1>Uploader Test</h1>
-    <p>Drag and drop an image into the message box to test it out!</p>
+    <p>Drag and drop a media file into the message box to test it out!</p>
     <main>
       <section class="chat-box form-horizontal">
         <h2>Chat</h2>
@@ -76,7 +98,7 @@
         </div>
         <div id="entry-region" class="form-group">
           <label for="new-message">Message:</label>
-          <textarea id="new-message" class="message-input form-control" placeholder="Message ..."></textarea>          
+          <textarea id="new-message" class="message-input form-control" placeholder="Message ..."></textarea>
           <button type="button" class="btn btn-primary" id="do-upload-image">Upload Image</button>
           <button type="submit" class="btn btn-default">Send</button>
         </div>
