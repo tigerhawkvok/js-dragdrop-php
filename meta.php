@@ -138,6 +138,10 @@ function doUploadVideo($passed_mime = null) {
      *
      * *should* work, but it's a bit dicey to run a direct shell
      * command ...
+     *
+     * https://github.com/buggedcom/phpvideotoolkit-v2 
+     * may provide a solution but the docs are long and I've not read
+     * through them yet.
      ***********/
     $uploadStatus["thumb_path"] = "";
     $uploadStatus["mime_provided"] = $passed_mime;
