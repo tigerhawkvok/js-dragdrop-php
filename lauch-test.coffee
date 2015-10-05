@@ -16,6 +16,8 @@ postUploadCallback = (file, result) ->
   # key is true or false depending on the status of the upload, and
   # the other most useful keys will be "full_path" and "thumb_path".
   ###
+  # Clear out the file uploader
+  window.dropperParams.dropzone.removeAllFiles()
   if typeof result isnt "object"
     console.error "Dropzone returned an error - #{result}"
     toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger")
@@ -72,8 +74,6 @@ postUploadCallback = (file, result) ->
         </p>
       </div>
       """
-
-    dropperParams.dropzone.removeAllFiles()
     $("#chat-region").append(html)
     mapNewWindows()
   catch e
