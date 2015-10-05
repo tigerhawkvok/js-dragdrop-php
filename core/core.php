@@ -284,7 +284,7 @@ class ImageFunctions {
         else  $image = $imgfile;
 
         if (strrchr($image, '/')) {
-            $filename = substr(strrchr($image, '/'), 1); // remove folder references
+            $filename = substr(strrchr($image, '/'), 1); # remove folder references
         }
         else {
             $filename = $image;
@@ -296,12 +296,12 @@ class ImageFunctions {
         $width = $size[0];
         $height = $size[1];
         if($width == 0 ) return array("status"=>false, "error"=>"Unable to compute image dimensions","image_path"=>$image);
-        // get the ratio needed
+        # get the ratio needed
         $x_ratio = $max_width / $width;
         $y_ratio = $max_height / $height;
 
-        // if image already meets criteria, load current values in
-        // if not, use ratios to load new size info
+        # if image already meets criteria, load current values in
+        # if not, use ratios to load new size info
         if (($width <= $max_width) && ($height <= $max_height) ) {
             $tn_width = $width;
             $tn_height = $height;
@@ -319,37 +319,37 @@ class ImageFunctions {
         $thumbModified = @filemtime($resized);
 
 
-        // read image
-        $ext = strtolower(substr(strrchr($image, '.'), 1)); // get the file extension
+        # read image
+        $ext = strtolower(substr(strrchr($image, '.'), 1)); # get the file extension
         switch ($ext) {
-        case 'jpg':     // jpg
+        case 'jpg':     # jpg
             $src = imagecreatefromjpeg($image) or self::notfound();
             break;
-        case 'png':     // png
+        case 'png':     # png
             $src = imagecreatefrompng($image) or self::notfound();
             break;
-        case 'gif':     // gif
+        case 'gif':     # gif
             $src = imagecreatefromgif($image) or self::notfound();
             break;
-        case 'bmp':     // bmp
+        case 'bmp':     # bmp
             $src = imagecreatefromwbmp($image) or self::notfound();
             break;
-        case 'webp':     // webp
+        case 'webp':     # webp
             $src = imagecreatefromwebp($image) or self::notfound();
             break;
         default:
             self::notfound();
         }
 
-        // set up canvas
+        # set up canvas
         $dst = imagecreatetruecolor($tn_width,$tn_height);
 
         imageantialias ($dst, true);
 
-        // copy resized image to new canvas
+        # copy resized image to new canvas
         imagecopyresampled ($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
 
-        // send the header and new image
+        # send the header and new image
         if($ext=='jpg')
         {
             $status = imagejpeg($dst, $output, 75);
@@ -375,7 +375,7 @@ class ImageFunctions {
             return array("status"=>false,"error"=>"Illegal extension","image_path"=>$image, "extension"=>$ext);
         }
 
-        // clear out the resources
+        # clear out the resources
         imagedestroy($src);
         imagedestroy($dst);
         return array("status"=>$status, "output"=>$output, "output_size"=>"$tn_width X $tn_height");
@@ -409,7 +409,7 @@ class ImageFunctions {
         else  $image = $this->img;
 
         if (strrchr($image, '/')) {
-            $filename = substr(strrchr($image, '/'), 1); // remove folder references
+            $filename = substr(strrchr($image, '/'), 1); # remove folder references
         }
         else {
             $filename = $image;
@@ -421,12 +421,12 @@ class ImageFunctions {
         $width = $size[0];
         $height = $size[1];
         if($width == 0 ) return array("status"=>false, "error"=>"Unable to compute image dimensions","image_path"=>$image);
-        // get the ratio needed
+        # get the ratio needed
         $x_ratio = $max_width / $width;
         $y_ratio = $max_height / $height;
 
-        // if image already meets criteria, load current values in
-        // if not, use ratios to load new size info
+        # if image already meets criteria, load current values in
+        # if not, use ratios to load new size info
         if (($width <= $max_width) && ($height <= $max_height) ) {
             $tn_width = $width;
             $tn_height = $height;
@@ -443,38 +443,38 @@ class ImageFunctions {
         $thumbModified = @filemtime($resized);
 
 
-        // read image
-        $ext = strtolower(substr(strrchr($image, '.'), 1)); // get the file extension
+        # read image
+        $ext = strtolower(substr(strrchr($image, '.'), 1)); # get the file extension
         switch ($ext) {
-        case 'jpg':     // jpg
+        case 'jpg':     # jpg
             $src = imagecreatefromjpeg($image) or self::notfound();
             break;
-        case 'png':     // png
+        case 'png':     # png
             $src = imagecreatefrompng($image) or self::notfound();
             break;
-        case 'gif':     // gif
+        case 'gif':     # gif
             $src = imagecreatefromgif($image) or self::notfound();
             break;
-        case 'bmp':     // bmp
+        case 'bmp':     # bmp
             $src = imagecreatefromwbmp($image) or self::notfound();
             break;
-        case 'webp':     // webp
+        case 'webp':     # webp
             $src = imagecreatefromwebp($image) or self::notfound();
             break;
         default:
             self::notfound();
         }
 
-        // set up canvas
+        # set up canvas
         $dst = imagecreatetruecolor($tn_width,$tn_height);
 
         imageantialias ($dst, true);
 
-        // copy resized image to new canvas
+        # copy resized image to new canvas
         imagecopyresampled ($dst, $src, 0, 0, 0, 0, $tn_width, $tn_height, $width, $height);
 
 
-        // send the header and new image
+        # send the header and new image
         if($ext=='jpg')
         {
             $status = imagejpeg($dst, $output, 75);
@@ -500,7 +500,7 @@ class ImageFunctions {
             return array("status"=>false,"error"=>"Illegal extension","image_path"=>$image, "extension"=>$ext);
         }
 
-        // clear out the resources
+        # clear out the resources
         imagedestroy($src);
         imagedestroy($dst);
         return array("status"=>$status, "output"=>$output, "output_size"=>"$tn_width X $tn_height");
