@@ -203,6 +203,7 @@ loadJS = (src, callback = new Object(), doCallbackOnError = true) ->
   document.getElementsByTagName('head')[0].appendChild(s)
   true
 
+window.loadJS = loadJS
 
 String::toTitleCase = ->
   # From http://stackoverflow.com/a/6475125/1877527
@@ -278,7 +279,7 @@ randomInt = (lower = 0, upper = 1) ->
 
 
 
-toastStatusMessage = (message, type = "warning", selector = "#status-message") ->
+toastStatusMessage = (message, type = "warning", fallbackContainer = "body", selector = "#status-message") ->
   ###
   # Pop up a status message
   # Uses the Bootstrap alert dialog
@@ -294,10 +295,11 @@ toastStatusMessage = (message, type = "warning", selector = "#status-message") -
         <div class="alert-message"></div>
     </div>
     """
-    topContainer = if $("main").exists() then "main" else if $("article").exists() then "article" else "body"
+    topContainer = if $("main").exists() then "main" else if $("article").exists() then "article" else fallbackContainer
     $(topContainer).prepend(html)
   $("#{selector} .alert-message").html(message)
 
+window.toastStatusMessage = toastStatusMessage
 
 openLink = (url) ->
   if not url? then return false
@@ -333,6 +335,8 @@ mapNewWindows = (stopPropagation = true) ->
       openInNewWindow(curHref)
     $(this).keypress ->
       openInNewWindow(curHref)
+
+window.mapNewWindows = mapNewWindows
 
 deepJQuery = (selector) ->
   ###
@@ -562,8 +566,6 @@ dropperParams.metaPath ?= ""
 dropperParams.uploadPath ?= "uploaded_images/"
 # We require some stuff, most notably Dropzone.
 dropperParams.dependencyPath ?= "bower_components/"
-dropperParams.dropzonePath = "#{dropperParams.dependencyPath}dropzone/dist/min/dropzone.min.js"
-dropperParams.bootstrapPath = "#{dropperParams.dependencyPath}bootstrap/dist/js/bootstrap.min.js"
 ## Deprecated
 ## dropperParams.md5Path = "#{dropperParams.dependencyPath}JavaScript-MD5/js/md5.min.js"
 # Maximum width of generated thumbnail
@@ -586,28 +588,31 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
   #
   # This function is Shadow-DOM aware, and will work on Webcomponents.
   ###
+  # Calculate the paths based on declared parameters.
+  dropperParams.dropzonePath = "#{dropperParams.dependencyPath}dropzone/dist/min/dropzone.min.js"
+  dropperParams.bootstrapPath = "#{dropperParams.dependencyPath}bootstrap/dist/js/bootstrap.min.js"
   # If no callback is provided, we use this default one
   unless typeof callback is "function"
     callback = (file, result) ->
       if typeof result isnt "object"
         console.error "Dropzone returned an error - #{result}"
-        toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger")
+        toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger", "#profile_conversation_wrapper")
         return false
       unless result.status is true
         # Yikes! Didn't work
         result.human_error ?= "There was a problem uploading your image."
-        toastStatusMessage("<strong>Error</strong> #{result.human_error}", "danger")
+        toastStatusMessage("<strong>Error</strong> #{result.human_error}", "danger", "#profile_conversation_wrapper")
         console.error("Error uploading!",result)
         return false
       try
         console.info "Server returned the following result:", result
         console.info "The script returned the following file information:", file
         dropperParams.dropzone.removeAllFiles()
-        toastStatusMessage("Upload complete", "success")
+        toastStatusMessage("Upload complete", "success", "#profile_conversation_wrapper")
       catch e
         console.error("There was a problem with upload post-processing - #{e.message}")
         console.warn("Using",fileName,result)
-        toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger")
+        toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger", "#profile_conversation_wrapper")
       false
   ## The main script
   # Load dependencies
@@ -618,18 +623,27 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
     c = document.createElement("link")
     c.setAttribute("rel","stylesheet")
     c.setAttribute("type","text/css")
+    # Load up the stylesheets for this. Includes bootstrap.
     c.setAttribute("href","#{dropperParams.metaPath}css/main.min.css")
     document.getElementsByTagName('head')[0].appendChild(c)
     Dropzone.autoDiscover = false
     # See http://www.dropzonejs.com/#configuration
-    defaultText = dropperParams.uploadText ? "Drop your image here."
+    defaultText = dropperParams.uploadText ? "Drop your image here to upload"
     dragCancel = ->
       d$(uploadTargetSelector)
       .css("box-shadow","")
       .css("border","")
       d$("#{uploadTargetSelector} .dz-message span").text(defaultText)
+    cleanup = (dzregion) ->
+      d$("#{uploadTargetSelector} + .image-upload-progress").remove()
+      # Undo position relative
+      d$("#do-upload-image")
+      .css("top","")
+      .css("position","")
+      try
+        dzregion.removeAllFiles()
     dropzoneConfig =
-      url: "#{dropperParams.metaPath}meta.php?do=upload_file&uploadpath=#{dropperParams.uploadPath}&thumb_width=#{dropperParams.thumbWidth}&thumb_height=#{dropperParams.thumb_height}"
+      url: "#{dropperParams.metaPath}meta.php?do=upload_file&uploadpath=#{dropperParams.uploadPath}&thumb_width=#{dropperParams.thumbWidth}&thumb_height=#{dropperParams.thumbHeight}"
       acceptedFiles: dropperParams.mimeTypes
       autoProcessQueue: true
       maxFiles: 1
@@ -637,12 +651,14 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
       clickable: dropperParams.clickTargets
       init: ->
         # See http://www.dropzonejs.com/#events
-        @on "error", (file, errorMessage) ->
-          toastStatusMessage("An error occured sending your image to the server - #{errorMessage}.", "danger")
-        @on "canceled", ->
-          toastStatusMessage("Upload canceled.", "info")
+        @on "error", (file, errorMessage) =>
+          toastStatusMessage("An error occured sending your image to the server - #{errorMessage}.", "danger", "#profile_conversation_wrapper")
+          cleanup(this)
+        @on "canceled", =>
+          toastStatusMessage("Upload canceled.", "info", "#profile_conversation_wrapper")
+          cleanup(this)
         @on "dragover", ->
-          d$("#{uploadTargetSelector} .dz-message span").text("Drop here to upload the image")
+          d$("#{uploadTargetSelector} .dz-message span").text defaultText
           ###
           # We want to hint a good hover -- so we use CSS
           #
@@ -676,6 +692,11 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
               """
               d$(uploadTargetSelector).after(html)
               progressBar = d$("#{uploadTargetSelector} + .image-upload-progress")
+              # Offset the upload button
+              buttonOffsetHeight = $(".image-upload-progress").outerHeight() + $("#profile_new_message").height() + $("#do-upload-image").outerHeight()
+              $("#do-upload-image")
+              .css("top","-#{buttonOffsetHeight}px!important")
+              .css("position","relative!important")
             progress = toInt(progress)
             # Handle the upload
             progressBar.find(".progress-bar")
@@ -684,13 +705,18 @@ handleDragDropImage = (uploadTargetSelector = "#upload-image", callback) ->
             progressBar.find(".upload-percent").text(progress)
             progressBar.find(".bytes-done").text(bytes)
             progressBar.find(".bytes-total").text(file.size)
-        @on "success", (file, result) ->
-          d$("#{uploadTargetSelector} + .image-upload-progress").remove()
+        @on "success", (file, result) =>
+          cleanup(this)
           callback(file, result)
     # Create the upload target
     unless d$(uploadTargetSelector).hasClass("dropzone")
       d$(uploadTargetSelector).addClass("dropzone")
-    fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig)
+    try
+      fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig)
+    catch e
+      console.warn "Warning! The drop target may be misconfigured. Dropzone said '#{e.message}'"
+      dropperParams.config = dropzoneConfig
+      console.info "Your dropzone configuration has been saved in dropperParams.config"
     dropperParams.dropzone = fileUploadDropzone
   false
 

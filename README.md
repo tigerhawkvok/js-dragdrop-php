@@ -1,5 +1,20 @@
 # js-dragdrop-php
 
+## Server Configuration
+
+The script and the `.htaccess` in the repo both try to set a
+higher-than-default upload filesize. However, this doesn't always work
+on all servers.
+
+In those cases, go to your `php.ini` file, and set the following two lines:
+
+```
+post_max_size=10M
+upload_max_filesize=10M
+```
+
+If you want a file upload higher than ten megabytes, be sure to change it in `.htaccess` and `php.ini` also.
+
 ## Configuration
 
 There plugin exposes the global variable `dropperParams`, which has two primary parameters:
@@ -67,13 +82,22 @@ The most important of these outputs is the JSON result from `meta.php`. It will 
 
 The javascript is all originally written with [CoffeeScript](http://coffeescript.org/), then compiled via [Grunt](http://gruntjs.com/). Similarly, the CSS is all written with [Less](http://lesscss.org/). I strongly suggest you make your edits in CoffeeScript then run `grunt qbuild`.
 
+Other options:
+
+- `build`: Like `qbuild`, but update Bower and NPM first
+- `compile`: Just compile CoffeeScript
+- `minify`: Uglify all the things, run postcss and autoprefixer
+- `watch`: Like it sounds like!
+
 Before any of this will work, you'll need to have Node installed and run
 
 `npm install`
 
 from the repository root to get all your dependencies installed.
 
-The callback used in the demo lives in `launch-test.coffee`.
+The result from `integration.js` should be refolded in to `server/public/observe/js/profile.js`.
+
+The styles are all in the `less` directory. Ignore any others, unless they're on an import statement in `main.less`. Most notably, the file `less/shadow-dropzone.css` is most of the Dropzone css in `bower_components`, plus compatibility for shadow-peircing selectors (`>>>` and `/deep/`) (therefore **replacing** the one in `bower_components/`)
 
 ## License
 

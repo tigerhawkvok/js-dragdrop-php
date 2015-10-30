@@ -9,6 +9,9 @@
  * @license MIT / GPL-3 dual-license
  ***/
 
+ini_set('post_max_size', '10M');
+ini_set('upload_max_filesize', '10M');
+
 # We require the functions living in core.php
 require_once dirname(__FILE__).'/core/core.php';
 
@@ -61,6 +64,7 @@ function returnAjax($data)
     exit();
 }
 
+
 function getRelativePath($fullPath)
 {
     /***
@@ -73,6 +77,11 @@ function getRelativePath($fullPath)
 
     return str_replace(dirname(__FILE__).'/', '', $fullPath);
 }
+
+# Manual mime type checker from
+# https://gist.github.com/Erutan409/8e774dfb2b343fe78b14#file-mimetype-php
+include_once("manual_mime.php");
+
 
 function handleUpload()
 {
@@ -87,6 +96,18 @@ function handleUpload()
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime = finfo_file($finfo, $temp);
     finfo_close($finfo);
+    $file = $_FILES['file']['name'];
+    $mime_error = "";
+    if(empty($mime)) {
+        # Just the fallback that is based purely on extension
+        # Only used when finfo can't find a mime type
+        try {
+            $mime = mime_type($file);
+        } catch (Exception $e) {
+            $mime_error = $e->getMessage();
+            $mime = null;
+        }
+    }
     # Look at the MIME prefix
     $mime_types = explode('/', $mime);
     $mime_class = $mime_types[0];
@@ -104,7 +125,29 @@ function handleUpload()
         return doUploadVideo($mime);
         break;
     default:
-        return array('status' => false,'error' => "Unrecognized MIME type '".$mime."'", 'human_error' => 'Unsupported file format');
+        # return array('status' => false,'error' => "Unrecognized MIME type '".$mime."' for file '".$file."' (".$mime_error.")", 'human_error' => 'Unsupported file format', "dumb_type"=>mime_type($file));
+        $temp = $_FILES['file']['tmp_name'];
+        $uploadPath = $_REQUEST['uploadpath'];
+        $savePath = dirname(__FILE__).'/'.$uploadPath;
+        if (!file_exists($savePath)) {
+            return array(
+                'status' => false,
+                'error' => "Bad path '$savePath'",
+                'human_error' => 'There is a server misconfiguration preventing your file from being uploaded',
+            );
+        }
+        $file = $_FILES['file']['name'];
+        $exploded = explode('.', $file);
+        $extension = array_pop($exploded);
+        $fileName = md5($file.microtime_float());
+        $newFilePath = $fileName.'.'.$extension;
+        $fileWritePath = $savePath.$newFilePath;
+        # We want to suppress the warning on move_uploaded_file, or else
+        # it'll return an invalid JSON response
+        #error_reporting(0); # Disable this for debugging
+        $status = move_uploaded_file($temp, $fileWritePath);
+        $uploadStatus = array('status' => $status,'original_file' => $file,'wrote_file' => $newFilePath,'full_path' => getRelativePath($fileWritePath), "dumb_type"=>mime_type($file));
+        return $uploadStatus;
     }
 }
 
@@ -134,13 +177,14 @@ function doUploadVideo($passed_mime = null)
         );
     }
     $file = $_FILES['file']['name'];
-    $extension = array_pop(explode('.', $file));
+    $exploded = explode('.', $file);
+    $extension = array_pop($exploded);
     $fileName = md5($file.microtime_float());
     $newFilePath = $fileName.'.'.$extension;
     $fileWritePath = $savePath.$newFilePath;
     # We want to suppress the warning on move_uploaded_file, or else
     # it'll return an invalid JSON response
-    error_reporting(0); # Disable this for debugging
+    #error_reporting(0); # Disable this for debugging
     $status = move_uploaded_file($temp, $fileWritePath);
     $uploadStatus = array('status' => $status,'original_file' => $file,'wrote_file' => $newFilePath,'full_path' => getRelativePath($fileWritePath));
     /***********
@@ -163,7 +207,8 @@ function doUploadVideo($passed_mime = null)
      ***********/
     $uploadStatus['thumb_path'] = '';
     $uploadStatus['mime_provided'] = $passed_mime;
-
+    # $uploadStatus["s3"] = copyToS3($fileWritePath, $newFilePath);
+    $uploadStatus["wrote_thumb"] = "";
     return $uploadStatus;
 }
 
@@ -193,19 +238,21 @@ function doUploadAudio($passed_mime = null)
         );
     }
     $file = $_FILES['file']['name'];
-    $extension = array_pop(explode('.', $file));
+    $exploded = explode('.', $file);
+    $extension = array_pop($exploded);
     $fileName = md5($file.microtime_float());
     $newFilePath = $fileName.'.'.$extension;
     $fileWritePath = $savePath.$newFilePath;
     # We want to suppress the warning on move_uploaded_file, or else
     # it'll return an invalid JSON response
-    error_reporting(0); # Disable this for debugging
+    #error_reporting(0); # Disable this for debugging
     $status = move_uploaded_file($temp, $fileWritePath);
     $uploadStatus = array('status' => $status,'original_file' => $file,'wrote_file' => $newFilePath,'full_path' => getRelativePath($fileWritePath));
     # Provide a link to a static thumbnail path
     $uploadStatus['thumb_path'] = 'assets/glyphicons-18-music.png';
     $uploadStatus['mime_provided'] = $passed_mime;
-
+    # $uploadStatus["s3"] = copyToS3($fileWritePath, $newFilePath);
+    $uploadStatus["wrote_thumb"] = 'assets/glyphicons-18-music.png';
     return $uploadStatus;
 }
 
@@ -248,19 +295,30 @@ function doUploadImage($passed_mime = null)
         );
     }
     $file = $_FILES['file']['name'];
-    $extension = array_pop(explode('.', $file));
+    $exploded = explode('.', $file);
+    $extension = array_pop($exploded);
     $fileName = md5($file.microtime_float());
     $newFilePath = $fileName.'.'.$extension;
     $fileWritePath = $savePath.$newFilePath;
     # We want to suppress the warning on move_uploaded_file, or else
     # it'll return an invalid JSON response
-    error_reporting(0); # Disable this for debugging
+    #error_reporting(0); # Disable this for debugging
     $status = move_uploaded_file($temp, $fileWritePath);
     $uploadStatus = array('status' => $status,'original_file' => $file,'wrote_file' => $newFilePath,'full_path' => getRelativePath($fileWritePath));
     if (!$status) {
         # We bugged out on completing the upload. Return this status.
+        # Formal mime type:
+        # https://secure.php.net/manual/en/fileinfo.constants.php
+        $finfo = finfo_open(FILEINFO_MIME);
+        $mime = finfo_file($finfo, $temp);
+        finfo_close($finfo);
+        # Return the "real" path for debugging
+        $uploadStatus["error"] = "Could not move uploaded file to destination ( Destination directory: ".realpath($savePath).")";
+        $uploadStatus["mime"] = "Formal mime: '".$mime."'";
+        $uploadStatus["human_error"] = "There was a problem saving your file to the server";
         return $uploadStatus;
     }
+    # $uploadStatus["s3"] = copyToS3($fileWritePath, $newFilePath);
     # OK, create the thumbs.
     if (intval($_REQUEST['thumb_width']) > 0) {
         $thumb_max_width = intval($_REQUEST['thumb_width']);
@@ -274,11 +332,12 @@ function doUploadImage($passed_mime = null)
     }
     $fileThumb = $savePath.$fileName.'-thumb.'.$extension;
     $resizeStatus = ImageFunctions::staticResizeImage($fileWritePath, $fileThumb, $thumb_max_width, $thumb_max_height);
+    $resizeStatus["s3"] = copyToS3($resizeStatus['output'], $fileName.'-thumb.'.$extension);
     $resizeStatus['output'] = getRelativePath($resizeStatus['output']);
     $uploadStatus['resize_status'] = $resizeStatus;
     $uploadStatus['thumb_path'] = $resizeStatus['output'];
+    $uploadStatus["wrote_thumb"] = str_replace("uploaded/","",$resizeStatus["output"]);
     $uploadStatus['mime_provided'] = $passed_mime;
-
     return $uploadStatus;
 }
 

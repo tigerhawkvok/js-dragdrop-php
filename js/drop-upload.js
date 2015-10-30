@@ -317,6 +317,8 @@
     return true;
   };
 
+  window.loadJS = loadJS;
+
   String.prototype.toTitleCase = function() {
     var i, j, len, len1, lower, lowerRegEx, lowers, str, upper, upperRegEx, uppers;
     str = this.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
@@ -389,10 +391,13 @@
     return Math.floor(start * (upper - lower + 1) + lower);
   };
 
-  toastStatusMessage = function(message, type, selector) {
+  toastStatusMessage = function(message, type, fallbackContainer, selector) {
     var html, topContainer;
     if (type == null) {
       type = "warning";
+    }
+    if (fallbackContainer == null) {
+      fallbackContainer = "body";
     }
     if (selector == null) {
       selector = "#status-message";
@@ -408,11 +413,13 @@
      */
     if (!$(selector).exists()) {
       html = "<div class=\"alert alert-" + type + " alert-dismissable\" role=\"alert\" id=\"" + (selector.slice(1)) + "\">\n  <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n    <div class=\"alert-message\"></div>\n</div>";
-      topContainer = $("main").exists() ? "main" : $("article").exists() ? "article" : "body";
+      topContainer = $("main").exists() ? "main" : $("article").exists() ? "article" : fallbackContainer;
       $(topContainer).prepend(html);
     }
     return $(selector + " .alert-message").html(message);
   };
+
+  window.toastStatusMessage = toastStatusMessage;
 
   openLink = function(url) {
     if (url == null) {
@@ -463,6 +470,8 @@
       });
     });
   };
+
+  window.mapNewWindows = mapNewWindows;
 
   deepJQuery = function(selector) {
 
@@ -777,10 +786,6 @@
     dropperParams.dependencyPath = "bower_components/";
   }
 
-  dropperParams.dropzonePath = dropperParams.dependencyPath + "dropzone/dist/min/dropzone.min.js";
-
-  dropperParams.bootstrapPath = dropperParams.dependencyPath + "bootstrap/dist/js/bootstrap.min.js";
-
   if (dropperParams.thumbWidth == null) {
     dropperParams.thumbWidth = 640;
   }
@@ -812,19 +817,21 @@
      *
      * This function is Shadow-DOM aware, and will work on Webcomponents.
      */
+    dropperParams.dropzonePath = dropperParams.dependencyPath + "dropzone/dist/min/dropzone.min.js";
+    dropperParams.bootstrapPath = dropperParams.dependencyPath + "bootstrap/dist/js/bootstrap.min.js";
     if (typeof callback !== "function") {
       callback = function(file, result) {
         var e;
         if (typeof result !== "object") {
           console.error("Dropzone returned an error - " + result);
-          toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger");
+          toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger", "#profile_conversation_wrapper");
           return false;
         }
         if (result.status !== true) {
           if (result.human_error == null) {
             result.human_error = "There was a problem uploading your image.";
           }
-          toastStatusMessage("<strong>Error</strong> " + result.human_error, "danger");
+          toastStatusMessage("<strong>Error</strong> " + result.human_error, "danger", "#profile_conversation_wrapper");
           console.error("Error uploading!", result);
           return false;
         }
@@ -832,46 +839,59 @@
           console.info("Server returned the following result:", result);
           console.info("The script returned the following file information:", file);
           dropperParams.dropzone.removeAllFiles();
-          toastStatusMessage("Upload complete", "success");
+          toastStatusMessage("Upload complete", "success", "#profile_conversation_wrapper");
         } catch (_error) {
           e = _error;
           console.error("There was a problem with upload post-processing - " + e.message);
           console.warn("Using", fileName, result);
-          toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger");
+          toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger", "#profile_conversation_wrapper");
         }
         return false;
       };
     }
     loadJS(dropperParams.bootstrapPath);
     loadJS(dropperParams.dropzonePath, function() {
-      var c, defaultText, dragCancel, dropzoneConfig, fileUploadDropzone, ref;
+      var c, cleanup, defaultText, dragCancel, dropzoneConfig, e, fileUploadDropzone, ref;
       c = document.createElement("link");
       c.setAttribute("rel", "stylesheet");
       c.setAttribute("type", "text/css");
       c.setAttribute("href", dropperParams.metaPath + "css/main.min.css");
       document.getElementsByTagName('head')[0].appendChild(c);
       Dropzone.autoDiscover = false;
-      defaultText = (ref = dropperParams.uploadText) != null ? ref : "Drop your image here.";
+      defaultText = (ref = dropperParams.uploadText) != null ? ref : "Drop your image here to upload";
       dragCancel = function() {
         d$(uploadTargetSelector).css("box-shadow", "").css("border", "");
         return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
       };
+      cleanup = function(dzregion) {
+        d$(uploadTargetSelector + " + .image-upload-progress").remove();
+        d$("#do-upload-image").css("top", "").css("position", "");
+        try {
+          return dzregion.removeAllFiles();
+        } catch (_error) {}
+      };
       dropzoneConfig = {
-        url: dropperParams.metaPath + "meta.php?do=upload_file&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumb_height,
+        url: dropperParams.metaPath + "meta.php?do=upload_file&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumbHeight,
         acceptedFiles: dropperParams.mimeTypes,
         autoProcessQueue: true,
         maxFiles: 1,
         dictDefaultMessage: defaultText,
         clickable: dropperParams.clickTargets,
         init: function() {
-          this.on("error", function(file, errorMessage) {
-            return toastStatusMessage("An error occured sending your image to the server - " + errorMessage + ".", "danger");
-          });
-          this.on("canceled", function() {
-            return toastStatusMessage("Upload canceled.", "info");
-          });
+          this.on("error", (function(_this) {
+            return function(file, errorMessage) {
+              toastStatusMessage("An error occured sending your image to the server - " + errorMessage + ".", "danger", "#profile_conversation_wrapper");
+              return cleanup(_this);
+            };
+          })(this));
+          this.on("canceled", (function(_this) {
+            return function() {
+              toastStatusMessage("Upload canceled.", "info", "#profile_conversation_wrapper");
+              return cleanup(_this);
+            };
+          })(this));
           this.on("dragover", function() {
-            d$(uploadTargetSelector + " .dz-message span").text("Drop here to upload the image");
+            d$(uploadTargetSelector + " .dz-message span").text(defaultText);
 
             /*
              * We want to hint a good hover -- so we use CSS
@@ -891,13 +911,15 @@
             return dragCancel();
           });
           this.on("uploadprogress", function(file, progress, bytes) {
-            var html, progressBar;
+            var buttonOffsetHeight, html, progressBar;
             if (dropperParams.showProgress === true) {
               progressBar = d$(uploadTargetSelector + " + .image-upload-progress");
               if (!progressBar.exists()) {
                 html = "<div class=\"image-upload-progress\">\n  <div class=\"progress\">\n    <div class=\"progress-bar progress-bar-striped active\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"min-width:2em;\">\n      <span class=\"upload-percent\">0</span>%<span class=\"sr-only\"> Complete</span>\n    </div>\n  </div>\n  <p class=\"text-center text-muted\"><span class=\"bytes-done\">0</span>/<span class=\"bytes-total\">0</span> bytes</p>\n</div>";
                 d$(uploadTargetSelector).after(html);
                 progressBar = d$(uploadTargetSelector + " + .image-upload-progress");
+                buttonOffsetHeight = $(".image-upload-progress").outerHeight() + $("#profile_new_message").height() + $("#do-upload-image").outerHeight();
+                $("#do-upload-image").css("top", "-" + buttonOffsetHeight + "px!important").css("position", "relative!important");
               }
               progress = toInt(progress);
               progressBar.find(".progress-bar").attr("aria-valuenow", progress).css("width", progress + "%");
@@ -906,16 +928,25 @@
               return progressBar.find(".bytes-total").text(file.size);
             }
           });
-          return this.on("success", function(file, result) {
-            d$(uploadTargetSelector + " + .image-upload-progress").remove();
-            return callback(file, result);
-          });
+          return this.on("success", (function(_this) {
+            return function(file, result) {
+              cleanup(_this);
+              return callback(file, result);
+            };
+          })(this));
         }
       };
       if (!d$(uploadTargetSelector).hasClass("dropzone")) {
         d$(uploadTargetSelector).addClass("dropzone");
       }
-      fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig);
+      try {
+        fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig);
+      } catch (_error) {
+        e = _error;
+        console.warn("Warning! The drop target may be misconfigured. Dropzone said '" + e.message + "'");
+        dropperParams.config = dropzoneConfig;
+        console.info("Your dropzone configuration has been saved in dropperParams.config");
+      }
       return dropperParams.dropzone = fileUploadDropzone;
     });
     return false;

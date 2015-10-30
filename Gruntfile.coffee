@@ -56,13 +56,34 @@ module.exports = (grunt) ->
             unused: true
             loops: true
             if_return: true
-            drop_console: false
+            drop_console: true #false
             warnings: true
             properties: true
             sequences: true
             cascade: true
         files:
           "js/drop-upload.min.js":["js/drop-upload.js"]
+      client:
+        options:
+          sourceMap:true
+          sourceMapName:"js/maps/client-upload.map"
+          sourceMapIncludeSources:true
+          sourceMapIn:"js/maps/client-upload.js.map"
+          compress:
+            # From https://github.com/mishoo/UglifyJS2#compressor-options
+            dead_code: true
+            unsafe: true
+            conditionals: true
+            unused: true
+            loops: true
+            if_return: true
+            drop_console: true #false
+            warnings: true
+            properties: true
+            sequences: true
+            cascade: true
+        files:
+          "client-upload.min.js":["client-upload.js"]
     less:
       # https://github.com/gruntjs/grunt-contrib-less
       options:
@@ -90,6 +111,12 @@ module.exports = (grunt) ->
           sourceMap: true
         files:
           "js/drop-upload.js":"coffee/*.coffee"
+          "client-upload.js":"client-bootstrapper.coffee"
+      integration:
+        options:
+          bare: true
+        files:
+          "integration.js":"integration.coffee"
     phpcsfixer:
       scripts:
         dir: ["./", "core/"]
@@ -102,8 +129,8 @@ module.exports = (grunt) ->
       root: ["*.php"]
     watch:
       scripts:
-        files: ["coffee/*.coffee"]
-        tasks: ["coffee:compile","uglify:dist","shell:movesrc"]
+        files: ["coffee/*.coffee", "client-bootstrapper.coffee", "integration.coffee"]
+        tasks: ["coffee","uglify","shell:movesrc"]
       styles:
         files: ["less/main.less"]
         tasks: ["less","postcss","cssmin"]
@@ -125,11 +152,11 @@ module.exports = (grunt) ->
         ignore: [/XHTML element “[a-z-]+-[a-z-]+” not allowed as child of XHTML element.*/,"Bad value “X-UA-Compatible” for attribute “http-equiv” on XHTML element “meta”.",/Bad value “theme-color”.*/,/Bad value “import” for attribute “rel” on element “link”.*/,/Element “.+” not allowed as child of element*/,/.*Illegal character in query: not a URL code point./]
   ## Now the tasks
   grunt.registerTask("default",["watch"])
-  grunt.registerTask("compile","Compile coffeescript",["coffee:compile","uglify:dist","shell:movesrc"])
+  grunt.registerTask("compile","Compile coffeescript",["coffee","uglify","shell:movesrc"])
   ## The minification tasks
   # Part 2
   grunt.registerTask("lessify", "Run less/css postprocessors", ["less","postcss","cssmin"])
-  grunt.registerTask("minifyBulk","Minify all the things",["uglify:dist"])
+  grunt.registerTask("minifyBulk","Minify all the things",["uglify"])
   # Main call
   grunt.registerTask "minify","Minify all the things",->
     grunt.task.run("lessify","minifyBulk")

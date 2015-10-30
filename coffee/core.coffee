@@ -203,6 +203,7 @@ loadJS = (src, callback = new Object(), doCallbackOnError = true) ->
   document.getElementsByTagName('head')[0].appendChild(s)
   true
 
+window.loadJS = loadJS
 
 String::toTitleCase = ->
   # From http://stackoverflow.com/a/6475125/1877527
@@ -278,7 +279,7 @@ randomInt = (lower = 0, upper = 1) ->
 
 
 
-toastStatusMessage = (message, type = "warning", selector = "#status-message") ->
+toastStatusMessage = (message, type = "warning", fallbackContainer = "body", selector = "#status-message") ->
   ###
   # Pop up a status message
   # Uses the Bootstrap alert dialog
@@ -294,10 +295,11 @@ toastStatusMessage = (message, type = "warning", selector = "#status-message") -
         <div class="alert-message"></div>
     </div>
     """
-    topContainer = if $("main").exists() then "main" else if $("article").exists() then "article" else "body"
+    topContainer = if $("main").exists() then "main" else if $("article").exists() then "article" else fallbackContainer
     $(topContainer).prepend(html)
   $("#{selector} .alert-message").html(message)
 
+window.toastStatusMessage = toastStatusMessage
 
 openLink = (url) ->
   if not url? then return false
@@ -333,6 +335,8 @@ mapNewWindows = (stopPropagation = true) ->
       openInNewWindow(curHref)
     $(this).keypress ->
       openInNewWindow(curHref)
+
+window.mapNewWindows = mapNewWindows
 
 deepJQuery = (selector) ->
   ###
