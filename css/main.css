@@ -3941,12 +3941,3 @@ button#profile_conversation_wrapper .close {
     display: none !important;
   }
 }
-section.rvv-profile-conversation {
-  float: left;
-}
-.profile-input {
-  font-weight: 300;
-}
-.emojiPickerIcon {
-  max-height: 32px;
-}

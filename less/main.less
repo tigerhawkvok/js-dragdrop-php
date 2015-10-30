@@ -1,3 +1,4 @@
+// Attach Bootstrap styles to the target element
 #profile_conversation_wrapper {
 // Styles!
 @import "../bower_components/bootstrap/less/variables.less";
@@ -26,23 +27,3 @@
 }
 // @import "../bower_components/dropzone/dist/dropzone.css"; // Full styles for plugin
 @import "../less/shadow-dropzone.css"; // This is weirdly declared because Grunt was getting angry.
-
-
-// Fix for profiles
-
-section.rvv-profile-conversation {
-    float: left;
-}
-
-// Fix profile field font weight
-.profile-input {
-    font-weight: 300;
-}
-
-.emojiPickerIcon {
-    // When the uploader starts, it keeps the picker from overflowing
-    max-height: 32px;
-}
-
-
-
