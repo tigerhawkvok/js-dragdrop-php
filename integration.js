@@ -30,7 +30,7 @@ window.dropperParams.postUploadHandler = function(file, result) {
    * When invoked, it calls the "self" helper methods to actually do
    * the file sending.
    */
-  var e, html, mediaType, pathPrefix, realPath, serverProcessFlag;
+  var e, error, html, mediaType, pathPrefix, realPath, serverProcessFlag;
   window.dropperParams.dropzone.removeAllFiles();
   if (typeof result !== "object") {
     console.error("Dropzone returned an error - " + result);
@@ -66,8 +66,8 @@ window.dropperParams.postUploadHandler = function(file, result) {
     window.dropperParams.richDisplay = html;
     $("#profile_messages").append(html);
     realPath = file.size < 5 * 1024 * 1024 || mediaType !== "image" ? "" + pathPrefix + result.full_path : "" + pathPrefix + result.thumb_path;
-  } catch (_error) {
-    e = _error;
+  } catch (error) {
+    e = error;
     console.error("There was a problem with upload post-processing - " + e.message);
     console.warn("Using", file.name, result);
     window.toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger", "#profile_conversation_wrapper");

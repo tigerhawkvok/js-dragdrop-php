@@ -1,5 +1,5 @@
 (function() {
-  var activityIndicatorOff, activityIndicatorOn, bindClicks, byteCount, d$, decode64, deepJQuery, delay, encode64, foo, formatScientificNames, getLocation, getMaxZ, getPosterFromSrc, goTo, handleDragDropImage, isBlank, isBool, isEmpty, isHovered, isJson, isNull, isNumber, jsonTo64, lightboxImages, loadJS, mapNewWindows, openLink, openTab, overlayOff, overlayOn, prepURI, randomInt, roundNumber, roundNumberSigfig, toFloat, toInt, toObject, toastStatusMessage,
+  var activityIndicatorOff, activityIndicatorOn, bindClicks, byteCount, d$, decode64, deepJQuery, delay, encode64, foo, formatScientificNames, getLocation, getMaxZ, getPosterFromSrc, goTo, handleDragDropImage, isBlank, isBool, isEmpty, isHovered, isJson, isNull, isNumber, jsonTo64, lazyFunctionMapping, lightboxImages, loadJS, mapNewWindows, openLink, openTab, overlayOff, overlayOn, prepURI, randomInt, roundNumber, roundNumberSigfig, toFloat, toInt, toObject, toastStatusMessage,
     slice = [].slice;
 
   window.locationData = new Object();
@@ -13,7 +13,7 @@
   window.debounce_timer = null;
 
   isBool = function(str, strict) {
-    var e;
+    var e, error1;
     if (strict == null) {
       strict = false;
     }
@@ -31,8 +31,8 @@
         return str === 1 || str === 0;
       }
       return false;
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       return false;
     }
   };
@@ -46,30 +46,30 @@
   };
 
   isNull = function(str) {
-    var e;
+    var e, error1;
     try {
       if (isEmpty(str) || isBlank(str) || (str == null)) {
         if (!(str === false || str === 0)) {
           return true;
         }
       }
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       return false;
     }
     return false;
   };
 
   isJson = function(str) {
-    var e;
+    var e, error1;
     if (typeof str === 'object') {
       return true;
     }
     try {
       JSON.parse(str);
       return true;
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       return false;
     }
     return false;
@@ -110,12 +110,12 @@
   };
 
   Object.size = function(obj) {
-    var e, key, size;
+    var e, error1, key, size;
     if (typeof obj !== "object") {
       try {
         return obj.length;
-      } catch (_error) {
-        e = _error;
+      } catch (error1) {
+        e = error1;
         console.error("Passed argument isn't an object and doesn't have a .length parameter");
         console.warn(e.message);
       }
@@ -172,22 +172,22 @@
   };
 
   encode64 = function(string) {
-    var e;
+    var e, error1;
     try {
       return Base64.encode(string);
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       console.warn("Bad encode string provided");
       return string;
     }
   };
 
   decode64 = function(string) {
-    var e;
+    var e, error1;
     try {
       return Base64.decode(string);
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       console.warn("Bad decode string provided");
       return string;
     }
@@ -233,7 +233,7 @@
   };
 
   loadJS = function(src, callback, doCallbackOnError) {
-    var e, errorFunction, onLoadFunction, s;
+    var e, error1, errorFunction, onLoadFunction, s;
     if (callback == null) {
       callback = new Object();
     }
@@ -256,8 +256,8 @@
       if (typeof callback === "function") {
         try {
           callback();
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           console.error("Script is already loaded, but there was an error executing the callback function - " + e.message);
         }
       }
@@ -270,7 +270,7 @@
     s.src = src;
     s.async = true;
     onLoadFunction = function() {
-      var state;
+      var error2, error3, state;
       state = s.readyState;
       try {
         if (!callback.done && (!state || /loaded|complete/.test(state))) {
@@ -278,18 +278,19 @@
           if (typeof callback === "function") {
             try {
               return callback();
-            } catch (_error) {
-              e = _error;
+            } catch (error2) {
+              e = error2;
               return console.error("Postload callback error - " + e.message);
             }
           }
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error3) {
+        e = error3;
         return console.error("Onload error - " + e.message);
       }
     };
     errorFunction = function() {
+      var error2, error3;
       console.warn("There may have been a problem loading " + src);
       try {
         if (!callback.done) {
@@ -297,14 +298,14 @@
           if (typeof callback === "function" && doCallbackOnError) {
             try {
               return callback();
-            } catch (_error) {
-              e = _error;
+            } catch (error2) {
+              e = error2;
               return console.error("Post error callback error - " + e.message);
             }
           }
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error3) {
+        e = error3;
         return console.error("There was an error in the error handler! " + e.message);
       }
     };
@@ -341,37 +342,134 @@
     return str;
   };
 
-  Function.prototype.debounce = function() {
-    var args, delayed, e, execAsap, func, threshold, timeout;
-    threshold = arguments[0], execAsap = arguments[1], timeout = arguments[2], args = 4 <= arguments.length ? slice.call(arguments, 3) : [];
-    if (threshold == null) {
-      threshold = 300;
-    }
-    if (execAsap == null) {
-      execAsap = false;
-    }
-    if (timeout == null) {
-      timeout = debounce_timer;
-    }
-    func = this;
-    delayed = function() {
-      if (!execAsap) {
-        func.apply(func, args);
+  lazyFunctionMapping = function() {
+    var mdName, name, ref, results, value;
+    if (((ref = window.core) != null ? ref.functionMap : void 0) == null) {
+      if (window.core == null) {
+        window.core = new Object();
       }
-      return console.log("Debounce applied");
-    };
-    if (timeout != null) {
-      try {
-        clearTimeout(timeout);
-      } catch (_error) {
-        e = _error;
-      }
-    } else if (execAsap) {
-      func.apply(obj, args);
-      console.log("Executed immediately");
+      core.functionMap = new Object();
     }
-    return setTimeout(delayed, threshold);
+    try {
+      results = [];
+      for (name in window) {
+        value = window[name];
+        try {
+          if (typeof value !== "function") {
+            continue;
+          }
+          try {
+            mdName = md5(value.toString());
+            results.push(core.functionMap[mdName] = name);
+          } catch (undefined) {}
+        } catch (undefined) {}
+      }
+      return results;
+    } catch (undefined) {}
   };
+
+  if (typeof Function.prototype.getName !== "function") {
+    Function.prototype.getName = function() {
+
+      /*
+       * Returns a unique identifier for a function
+       */
+      var altName, name, ref;
+      if (((ref = window.core) != null ? ref.functionMap : void 0) == null) {
+        if (window.core == null) {
+          window.core = new Object();
+        }
+        core.functionMap = new Object();
+      }
+      name = this.name;
+      if (name == null) {
+        name = this.toString().substr(0, this.toString().indexOf("(")).replace("function ", "");
+      }
+      if (isNull(name)) {
+        name = md5(this.toString());
+        try {
+          if (typeof core.functionMap !== "object") {
+            try {
+              lazyFunctionMapping();
+            } catch (undefined) {}
+          }
+          if (typeof core.functionMap === "object") {
+            altName = core.functionMap[name];
+            if (!isNull(altName)) {
+              name = altName;
+            }
+          }
+        } catch (undefined) {}
+      }
+      return name;
+    };
+  }
+
+  if (typeof Function.prototype.debounce !== "function") {
+    Function.prototype.debounce = function() {
+      var args, delayed, e, error1, execAsap, func, key, ref, threshold, timeout;
+      threshold = arguments[0], execAsap = arguments[1], timeout = arguments[2], args = 4 <= arguments.length ? slice.call(arguments, 3) : [];
+      if (threshold == null) {
+        threshold = 300;
+      }
+      if (execAsap == null) {
+        execAsap = false;
+      }
+      if (timeout == null) {
+        timeout = window.debounce_timer;
+      }
+
+      /*
+       * Borrowed from http://coffeescriptcookbook.com/chapters/functions/debounce
+       * Only run the prototyped function once per interval.
+       *
+       * @param threshold -> Timeout in ms
+       * @param execAsap -> Do it NAOW
+       * @param timeout -> backup timeout object
+       */
+      if (((ref = window.core) != null ? ref.debouncers : void 0) == null) {
+        if (window.core == null) {
+          window.core = new Object();
+        }
+        core.debouncers = new Object();
+      }
+      try {
+        key = this.getName();
+      } catch (undefined) {}
+      func = this;
+      delayed = function() {
+        if (!execAsap) {
+          return func.apply(func, args);
+        }
+      };
+      try {
+        if (core.debouncers[key] != null) {
+          timeout = core.debouncers[key];
+        }
+      } catch (undefined) {}
+      if (timeout != null) {
+        try {
+          clearTimeout(timeout);
+        } catch (error1) {
+          e = error1;
+        }
+      }
+      if (execAsap) {
+        func.apply(obj, args);
+        console.log("Executed " + key + " immediately");
+        return false;
+      }
+      if (key != null) {
+        return core.debouncers[key] = delay(threshold, function() {
+          return delayed();
+        });
+      } else {
+        return window.debounce_timer = delay(threshold, function() {
+          return delayed();
+        });
+      }
+    };
+  }
 
   randomInt = function(lower, upper) {
     var ref, ref1, start;
@@ -481,21 +579,21 @@
      * Cross-browser, works with Chrome, Firefox, Opera, Safari, and IE
      * Falls back to standard jQuery selector when everything fails.
      */
-    var e;
+    var e, error1, error2;
     try {
       if (!$("html /deep/ " + selector).exists()) {
         throw "Bad /deep/ selector";
       }
       return $("html /deep/ " + selector);
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       try {
         if (!$("html >>> " + selector).exists()) {
           throw "Bad >>> selector";
         }
         return $("html >>> " + selector);
-      } catch (_error) {
-        e = _error;
+      } catch (error2) {
+        e = error2;
         return $(selector);
       }
     }
@@ -516,7 +614,7 @@
      * URL data-href.
      */
     $(selector).each(function() {
-      var callable, e, url;
+      var callable, e, error1, error2, url;
       try {
         url = $(this).attr("data-href");
         if (!isNull(url)) {
@@ -525,8 +623,8 @@
             if (url === uri.o.attr("path") && $(this).prop("tagName").toLowerCase() === "paper-tab") {
               $(this).parent().prop("selected", $(this).index());
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error1) {
+            e = error1;
             console.warn("tagname lower case error");
           }
           $(this).click(function() {
@@ -542,18 +640,19 @@
           if (callable != null) {
             $(this).unbind();
             return $(this).click(function() {
+              var error2;
               try {
                 console.log("Executing bound function " + callable + "()");
                 return window[callable]();
-              } catch (_error) {
-                e = _error;
+              } catch (error2) {
+                e = error2;
                 return console.error("'" + callable + "()' is a bad function - " + e.message);
               }
             });
           }
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error2) {
+        e = error2;
         return console.error("There was a problem binding to #" + ($(this).attr("id")) + " - " + e.message);
       }
     });
@@ -566,14 +665,14 @@
      * Take the "src" attribute of a video and get the
      * "png" screencap from it, and return the value.
      */
-    var dummy, e, split;
+    var dummy, e, error1, split;
     try {
       split = srcString.split(".");
       dummy = split.pop();
       split.push("png");
       return split.join(".");
-    } catch (_error) {
-      e = _error;
+    } catch (error1) {
+      e = error1;
       return "";
     }
   };
@@ -616,17 +715,18 @@
     };
     jqo = lookDeeply ? d$(selector) : $(selector);
     return jqo.click(function(e) {
+      var error1;
       try {
         $(this).imageLightbox(options).startImageLightbox();
         e.preventDefault();
         e.stopPropagation();
         return console.warn("Event propagation was stopped when clicking on this.");
-      } catch (_error) {
-        e = _error;
+      } catch (error1) {
+        e = error1;
         return console.error("Unable to lightbox this image!");
       }
     }).each(function() {
-      var e, imgUrl, tagHtml;
+      var e, error1, imgUrl, tagHtml;
       console.log("Using selectors '" + selector + "' / '" + this + "' for lightboximages");
       try {
         if ($(this).prop("tagName").toLowerCase() === "img" && $(this).parent().prop("tagName").toLowerCase() !== "a") {
@@ -643,8 +743,8 @@
           }).call(this);
           return $(this).replaceWith("<a href='" + imgUrl + "' class='lightboximage'>" + tagHtml + "</a>");
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error1) {
+        e = error1;
         return console.log("Couldn't parse through the elements");
       }
     });
@@ -817,21 +917,21 @@
      *
      * This function is Shadow-DOM aware, and will work on Webcomponents.
      */
-    dropperParams.dropzonePath = dropperParams.dependencyPath + "dropzone/dist/min/dropzone.min.js";
+    dropperParams.dropzonePath = dropperParams.metaPath + "js/dropzone-custom.min.js";
     dropperParams.bootstrapPath = dropperParams.dependencyPath + "bootstrap/dist/js/bootstrap.min.js";
     if (typeof callback !== "function") {
       callback = function(file, result) {
-        var e;
+        var e, error1;
         if (typeof result !== "object") {
           console.error("Dropzone returned an error - " + result);
-          toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger", "#profile_conversation_wrapper");
+          dropperParams.toastStatusMessage("<strong>Error</strong> There was a problem with the server handling your image. Please try again.", "danger", "main");
           return false;
         }
         if (result.status !== true) {
           if (result.human_error == null) {
             result.human_error = "There was a problem uploading your image.";
           }
-          toastStatusMessage("<strong>Error</strong> " + result.human_error, "danger", "#profile_conversation_wrapper");
+          dropperParams.toastStatusMessage("<strong>Error</strong> " + result.human_error, "danger", "main");
           console.error("Error uploading!", result);
           return false;
         }
@@ -839,26 +939,26 @@
           console.info("Server returned the following result:", result);
           console.info("The script returned the following file information:", file);
           dropperParams.dropzone.removeAllFiles();
-          toastStatusMessage("Upload complete", "success", "#profile_conversation_wrapper");
-        } catch (_error) {
-          e = _error;
+          dropperParams.toastStatusMessage("Upload complete", "success", "main");
+        } catch (error1) {
+          e = error1;
           console.error("There was a problem with upload post-processing - " + e.message);
           console.warn("Using", fileName, result);
-          toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger", "#profile_conversation_wrapper");
+          dropperParams.toastStatusMessage("<strong>Error</strong> Your upload completed, but we couldn't post-process it.", "danger", "main");
         }
         return false;
       };
     }
     loadJS(dropperParams.bootstrapPath);
     loadJS(dropperParams.dropzonePath, function() {
-      var c, cleanup, defaultText, dragCancel, dropzoneConfig, e, fileUploadDropzone, ref;
+      var c, cleanup, defaultText, dragCancel, dropzoneConfig, e, error1, fileUploadDropzone, ref;
       c = document.createElement("link");
       c.setAttribute("rel", "stylesheet");
       c.setAttribute("type", "text/css");
       c.setAttribute("href", dropperParams.metaPath + "css/main.min.css");
       document.getElementsByTagName('head')[0].appendChild(c);
       Dropzone.autoDiscover = false;
-      defaultText = (ref = dropperParams.uploadText) != null ? ref : "Drop your image here to upload";
+      defaultText = (ref = dropperParams.uploadText) != null ? ref : "Drop your file here to upload";
       dragCancel = function() {
         d$(uploadTargetSelector).css("box-shadow", "").css("border", "");
         return d$(uploadTargetSelector + " .dz-message span").text(defaultText);
@@ -868,7 +968,7 @@
         d$("#do-upload-image").css("top", "").css("position", "");
         try {
           return dzregion.removeAllFiles();
-        } catch (_error) {}
+        } catch (undefined) {}
       };
       dropzoneConfig = {
         url: dropperParams.metaPath + "meta.php?do=upload_file&uploadpath=" + dropperParams.uploadPath + "&thumb_width=" + dropperParams.thumbWidth + "&thumb_height=" + dropperParams.thumbHeight,
@@ -880,13 +980,14 @@
         init: function() {
           this.on("error", (function(_this) {
             return function(file, errorMessage) {
-              toastStatusMessage("An error occured sending your image to the server - " + errorMessage + ".", "danger", "#profile_conversation_wrapper");
+              dropperParams.toastStatusMessage("An error occured sending your file to the server - " + errorMessage, "danger", "main");
+              console.error("Got the following file details back:", file);
               return cleanup(_this);
             };
           })(this));
           this.on("canceled", (function(_this) {
             return function() {
-              toastStatusMessage("Upload canceled.", "info", "#profile_conversation_wrapper");
+              dropperParams.toastStatusMessage("Upload canceled.", "info", "main");
               return cleanup(_this);
             };
           })(this));
@@ -941,8 +1042,8 @@
       }
       try {
         fileUploadDropzone = new Dropzone(d$(uploadTargetSelector).get(0), dropzoneConfig);
-      } catch (_error) {
-        e = _error;
+      } catch (error1) {
+        e = error1;
         console.warn("Warning! The drop target may be misconfigured. Dropzone said '" + e.message + "'");
         dropperParams.config = dropzoneConfig;
         console.info("Your dropzone configuration has been saved in dropperParams.config");
@@ -953,8 +1054,6 @@
   };
 
   dropperParams.handleDragDropImage = handleDragDropImage;
-
-  window.toastStatusMessage = toastStatusMessage;
 
 }).call(this);
 

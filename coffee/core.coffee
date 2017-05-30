@@ -90,8 +90,8 @@ roundNumberSigfig = (number, digits = 0) ->
   needDigits = digits - trailingDigits.length
   trailingDigits += Array(needDigits + 1).join("0")
   "#{significand}#{trailingDigits}"
-  
-  
+
+
 jsonTo64 = (obj) ->
   if typeof obj is "array"
     obj = toObject(arr)
@@ -252,22 +252,85 @@ String::toTitleCase = ->
   str
 
 
-Function::debounce = (threshold = 300, execAsap = false, timeout = debounce_timer, args...) ->
-  # Borrowed from http://coffeescriptcookbook.com/chapters/functions/debounce
-  # Only run the prototyped function once per interval.
-  func = this
-  delayed = ->
-    func.apply(func, args) unless execAsap
-    console.log("Debounce applied")
-  if timeout?
+lazyFunctionMapping = ->
+  unless window.core?.functionMap?
+    unless window.core?
+      window.core = new Object()
+    core.functionMap = new Object()
+  try
+    for name, value of window
+      try
+        if typeof value isnt "function"
+          continue
+        try
+          mdName = md5 value.toString()
+          core.functionMap[mdName] = name
+
+unless typeof Function.prototype.getName is "function"
+  Function::getName = ->
+    ###
+    # Returns a unique identifier for a function
+    ###
+    unless window.core?.functionMap?
+      unless window.core?
+        window.core = new Object()
+      core.functionMap = new Object()
+    name = this.name
+    unless name?
+      name = this.toString().substr( 0, this.toString().indexOf( "(" ) ).replace( "function ", "" )
+    if isNull name
+      name = md5 this.toString()
+      try
+        if typeof core.functionMap isnt "object"
+          try
+            lazyFunctionMapping()
+        if typeof core.functionMap is "object"
+          altName = core.functionMap[name]
+          unless isNull altName
+            name = altName
+    name
+
+unless typeof Function.prototype.debounce is "function"
+  Function::debounce = (threshold = 300, execAsap = false, timeout = window.debounce_timer, args...) ->
+    ###
+    # Borrowed from http://coffeescriptcookbook.com/chapters/functions/debounce
+    # Only run the prototyped function once per interval.
+    #
+    # @param threshold -> Timeout in ms
+    # @param execAsap -> Do it NAOW
+    # @param timeout -> backup timeout object
+    ###
+    unless window.core?.debouncers?
+      unless window.core?
+        window.core = new Object()
+      core.debouncers = new Object()
     try
-      clearTimeout(timeout)
-    catch e
-      # just do nothing
-  else if execAsap
-    func.apply(obj, args)
-    console.log("Executed immediately")
-  setTimeout(delayed, threshold)
+      key = this.getName()
+    func = this
+    delayed = ->
+      func.apply(func, args) unless execAsap
+      #console.info("Debounce applied")
+    try
+      if core.debouncers[key]?
+        timeout = core.debouncers[key]
+    if timeout?
+      try
+        clearTimeout(timeout)
+      catch e
+        # just do nothing
+    if execAsap
+      func.apply(obj, args)
+      console.log("Executed #{key} immediately")
+      return false
+    if key?
+      #console.log "Debouncing '#{key}' for #{threshold} ms"
+      core.debouncers[key] = delay threshold, ->
+        delayed()
+    else
+      #console.log "Delaying '#{key}' for #{threshold} ms"
+      window.debounce_timer = delay threshold, ->
+        delayed()
+
 
 randomInt = (lower = 0, upper = 1) ->
   start = Math.random()

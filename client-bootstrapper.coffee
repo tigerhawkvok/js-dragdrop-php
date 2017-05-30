@@ -6,6 +6,10 @@
 ###
 
 
+unless window.dropperParams?
+  window.dropperParams = new Object()
+
+
 ###
 # Watch DOM for element availability.
 #
@@ -70,28 +74,28 @@
 $ ->
   # Configuration
   console.info "Configuring dropper parameters"
-  window.dropperParams ?= new Object()
-  window.dropperParams.metaPath = "/media-uploader/"
-  window.dropperParams.uploadPath = "uploaded/"
-  window.dropperParams.dependencyPath = "/media-uploader/bower_components/"
+  window.dropperParams.metaPath = "/dragdrop/"
+  window.dropperParams.uploadPath ?= "uploaded/" # Relative to "meta"
+  window.dropperParams.dependencyPath = "#{window.dropperParams.metaPath}bower_components/"
   window.dropperParams.showProgress = true
-  window.dropperParams.dropTargetSelector ?= "#profile_new_message"
+  window.dropperParams.dropTargetSelector ?= "#file-uploader"
   # Add a click target
   uploadButton = """
-  <button class="upload-image media-uploader btn btn primary" id="do-upload-image"><span class="icon-batch-image" style="position:relative; right:3px;"></span></button>
+  <button class="upload-image media-uploader btn btn-primary pull-right" id="do-upload-file" type="button"><span class="glyphicon glyphicon-cloud-upload"></span></button>
   """
-  window.dropperParams.clickTargets = ["#do-upload-image"]
+  window.dropperParams.clickTargets = ["#do-upload-file"]
+  window.dropperParams.mimeTypes = "application/json"
 
   console.log window.dropperParams
-
-  # Load Bootstrap's JS
-  loadJS dropperParams.bootstrapPath
   # We shouldn't actually instantiate the dropper until the element
   # exists
-  ready dropperParams.dropTargetSelector, (element) ->
-    console.info "#{dropperParams.dropTargetSelector} is ready, binding"
-    $(window.dropperParams.dropTargetSelector).parent().after uploadButton
-    # Do base binding
-    # The post upload handler should be in integration.coffee, and
-    # should either be here, or directly integrated into a greater application
-    window.dropperParams.handleDragDropImage dropperParams.dropTargetSelector, dropperParams.postUploadHandler
+  do window.dropperParams.initialize = ->
+    loadJS "#{window.dropperParams.metaPath}js/drop-upload.min.js", ->
+      ready dropperParams.dropTargetSelector, (element) ->
+        console.info "#{dropperParams.dropTargetSelector} is ready, binding"
+        $(window.dropperParams.dropTargetSelector).parent().after uploadButton
+        window.dropperParams.hasInitialized = true
+        # Do base binding
+        # The post upload handler should be in integration.coffee, and
+        # should either be here, or directly integrated into a greater application
+        window.dropperParams.handleDragDropImage dropperParams.dropTargetSelector, dropperParams.postUploadHandler

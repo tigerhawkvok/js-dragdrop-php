@@ -39,9 +39,6 @@ module.exports = (grunt) ->
       dist:
         src: "css/main.css"
     uglify:
-      options:
-        mangle:
-          except:['jQuery']
       dist:
         options:
           sourceMap:true
@@ -56,7 +53,7 @@ module.exports = (grunt) ->
             unused: true
             loops: true
             if_return: true
-            drop_console: true #false
+            drop_console: false
             warnings: true
             properties: true
             sequences: true

@@ -6,15 +6,19 @@
  * `integration.coffee` after this comment.
  */
 
-
-/*
- * Watch DOM for element availability.
- *
- * Directly lifted from
- * http://ryanmorr.com/using-mutation-observers-to-watch-for-element-availability/
- */
-
 (function() {
+  if (window.dropperParams == null) {
+    window.dropperParams = new Object();
+  }
+
+
+  /*
+   * Watch DOM for element availability.
+   *
+   * Directly lifted from
+   * http://ryanmorr.com/using-mutation-observers-to-watch-for-element-availability/
+   */
+
   
 (function(win){
     'use strict';
@@ -66,28 +70,33 @@
 
 })(this);
 ;
+
   $(function() {
-    var base, uploadButton;
+    var base, base1, uploadButton;
     console.info("Configuring dropper parameters");
-    if (window.dropperParams == null) {
-      window.dropperParams = new Object();
+    window.dropperParams.metaPath = "/dragdrop/";
+    if ((base = window.dropperParams).uploadPath == null) {
+      base.uploadPath = "uploaded/";
     }
-    window.dropperParams.metaPath = "/media-uploader/";
-    window.dropperParams.uploadPath = "uploaded/";
-    window.dropperParams.dependencyPath = "/media-uploader/bower_components/";
+    window.dropperParams.dependencyPath = window.dropperParams.metaPath + "bower_components/";
     window.dropperParams.showProgress = true;
-    if ((base = window.dropperParams).dropTargetSelector == null) {
-      base.dropTargetSelector = "#profile_new_message";
+    if ((base1 = window.dropperParams).dropTargetSelector == null) {
+      base1.dropTargetSelector = "#file-uploader";
     }
-    uploadButton = "<button class=\"upload-image media-uploader btn btn primary\" id=\"do-upload-image\"><span class=\"icon-batch-image\" style=\"position:relative; right:3px;\"></span></button>";
-    window.dropperParams.clickTargets = ["#do-upload-image"];
+    uploadButton = "<button class=\"upload-image media-uploader btn btn-primary pull-right\" id=\"do-upload-file\" type=\"button\"><span class=\"glyphicon glyphicon-cloud-upload\"></span></button>";
+    window.dropperParams.clickTargets = ["#do-upload-file"];
+    window.dropperParams.mimeTypes = "application/json";
     console.log(window.dropperParams);
-    loadJS(dropperParams.bootstrapPath);
-    return ready(dropperParams.dropTargetSelector, function(element) {
-      console.info(dropperParams.dropTargetSelector + " is ready, binding");
-      $(window.dropperParams.dropTargetSelector).parent().after(uploadButton);
-      return window.dropperParams.handleDragDropImage(dropperParams.dropTargetSelector, dropperParams.postUploadHandler);
-    });
+    return (window.dropperParams.initialize = function() {
+      return loadJS(window.dropperParams.metaPath + "js/drop-upload.min.js", function() {
+        return ready(dropperParams.dropTargetSelector, function(element) {
+          console.info(dropperParams.dropTargetSelector + " is ready, binding");
+          $(window.dropperParams.dropTargetSelector).parent().after(uploadButton);
+          window.dropperParams.hasInitialized = true;
+          return window.dropperParams.handleDragDropImage(dropperParams.dropTargetSelector, dropperParams.postUploadHandler);
+        });
+      });
+    })();
   });
 
 }).call(this);
